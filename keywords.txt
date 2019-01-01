@@ -1,0 +1,40 @@
+########################################
+# Syntax Coloring Map For uNode
+########################################
+#
+# Fields (Data Members) - KEYWORD2
+# Methods (Member Functions)
+#  - FUNCTION2 (or KEYWORD2)
+# Constants - LITERAL2
+# Datatypes - KEYWORD5 (or KEYWORD1)
+########################################
+
+########################################
+# Datatypes (KEYWORD5 or KEYWORD1)
+########################################
+
+uNode                            KEYWORD1
+
+########################################
+# Methods and Functions
+#   (FUNCTION2 or KEYWORD2)
+########################################
+
+sendLoRa                        KEYWORD2
+standby                         KEYWORD2
+deepSleep                       KEYWORD2
+
+########################################
+# Constants (LITERAL2)
+########################################
+
+D0                              LITERAL2
+D1                              LITERAL2
+D2                              LITERAL2
+D3                              LITERAL2
+D4                              LITERAL2
+D5                              LITERAL2
+D6                              LITERAL2
+D7                              LITERAL2
+D8                              LITERAL2
+D9                              LITERAL2

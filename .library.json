@@ -1,0 +1,38 @@
+{
+  "authors": [
+    {
+      "email": "ioannis.charalampidis@tlab.io",
+      "maintainer": true,
+      "name": "Ioannis Charalampidis",
+      "url": null
+    }
+  ],
+  "description": "The hardware abstraction library for TLab.js uNode Boards",
+  "export": {
+    "exclude": [
+      "extras",
+      "docs",
+      "tests",
+      "test",
+      "*.doxyfile",
+      "*.pdf"
+    ],
+    "include": null
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "homepage": null,
+  "keywords": [
+    "communication"
+  ],
+  "name": "uNode",
+  "platforms": [
+    "espressif8266"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tlabio/arduino-unode.git"
+  },
+  "version": "0.5.0"
+}
