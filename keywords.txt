@@ -28,6 +28,14 @@ deepSleep                       KEYWORD2
 # Constants (LITERAL2)
 ########################################
 
+UPIN_SCK                        LITERAL2
+UPIN_MISO                       LITERAL2
+UPIN_MOSI                       LITERAL2
+UPIN_RFM_DIO1                   LITERAL2
+UPIN_RFM_DIO0                   LITERAL2
+UPIN_RFM_EN                     LITERAL2
+UPIN_GPIO                       LITERAL2
+UPIN_VBUS_EN                    LITERAL2
 D0                              LITERAL2
 D1                              LITERAL2
 D2                              LITERAL2
@@ -38,3 +46,13 @@ D6                              LITERAL2
 D7                              LITERAL2
 D8                              LITERAL2
 D9                              LITERAL2
+STANDBY_ALL                     LITERAL2
+STANDBY_GPIO                    LITERAL2
+STANDBY_WIFI                    LITERAL2
+STANDBY_LORA                    LITERAL2
+LORA_DISABLED                   LITERAL2
+LORA_TTN_ABP                    LITERAL2
+LORA_TTN_OTAA                   LITERAL2
+LOG_DEFAULT                     LITERAL2
+LOG_DISABLED                    LITERAL2
+LOG_INFO                        LITERAL2
