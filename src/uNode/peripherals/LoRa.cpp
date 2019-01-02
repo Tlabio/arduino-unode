@@ -51,6 +51,14 @@
  */
 LoRaClass LoRa;
 
+// Pin mapping for uNode
+const lmic_pinmap lmic_pins = {
+  .nss = UPIN_RFM_EN,
+  .rxtx = LMIC_UNUSED_PIN,
+  .rst = LMIC_UNUSED_PIN,
+  .dio = {UPIN_RFM_DIO0, UPIN_RFM_DIO1, LMIC_UNUSED_PIN},
+};
+
 /**
  * Structure for persisting the LoRa OTAA configuration
  */
@@ -81,15 +89,6 @@ void os_getDevKey (u1_t* buf) {
   }
 }
 
-// Pin mapping
-// Adapted for Feather M0 per p.10 of [feather]
-const lmic_pinmap lmic_pins = {
-  .nss = UPIN_RFM_EN,
-  .rxtx = LMIC_UNUSED_PIN,
-  .rst = LMIC_UNUSED_PIN,
-  .dio = {UPIN_RFM_DIO0, UPIN_RFM_DIO1, LMIC_UNUSED_PIN},
-};
-
 /**
  * Handler for LMic
  */
@@ -119,6 +118,7 @@ void onEvent(ev_t ev) {
 
       // Persist the OTAA configuration
       if (system_config.lora.mode == LORA_TTN_OTAA) {
+        logDebug("Persisting OTAA session");
 
         // Take a snapshot of the session information
         persistedConfig.netid = LMIC.netid;
@@ -127,8 +127,10 @@ void onEvent(ev_t ev) {
         memcpy(persistedConfig.artKey, LMIC.artKey, sizeof(persistedConfig.artKey));
 
         // Persist state on the RTC memory (persisted across deep sleeps)
-        rtcMemWrite(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
-        rtcMemFlagSet(RTCMEM_SLOT_BOOTFLAGS, BOOTFLAG_LORA_JOINED);
+        if (rtcMemWrite(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig) != 0) {
+          logDebug("Marking device as OTAA-Joined");
+          rtcMemFlagSet(RTCMEM_SLOT_BOOTFLAGS, BOOTFLAG_LORA_JOINED);
+        }
       }
 
       // If the user wants to know when we are joined, call-out now
@@ -224,15 +226,18 @@ void LoRaClass::begin() {
     // If we are starting in OTAA mode and we are already joined, re-use the
     // last saved information and resume the session.
     if (rtcMemFlagGet(RTCMEM_SLOT_BOOTFLAGS, BOOTFLAG_LORA_JOINED) != 0) {
-      rtcMemRead(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
+      logDebug("The device is OTAA-Joined, reading session info");
+      if (rtcMemRead(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig) != 0) {
+        logDebug("Resuming OTAA session");
 
-      // Resume session
-      LMIC_setSession(persistedConfig.netid, persistedConfig.devaddr,
-                   (uint8_t*)persistedConfig.nwkKey,
-                   (uint8_t*)persistedConfig.artKey);
+        // Resume session
+        LMIC_setSession(persistedConfig.netid, persistedConfig.devaddr,
+                     (uint8_t*)persistedConfig.nwkKey,
+                     (uint8_t*)persistedConfig.artKey);
 
-      // Configure channels
-      configureTTNChannels();
+        // Configure channels
+        configureTTNChannels();
+      }
     }
 
   }
