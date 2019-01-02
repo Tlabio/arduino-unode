@@ -39,6 +39,9 @@
 #include "uNode/Pinout.hpp"
 #include "uNode/PublicDefinitions.hpp"
 
+// Implicit dependencies that the user can include on-demand
+//include "uNode/peripherals/Wire.hpp"
+
 /**
  * The user-facing interface
  */

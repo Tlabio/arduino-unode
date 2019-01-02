@@ -27,6 +27,7 @@
 #include "peripherals/GPIO.hpp"
 #include "peripherals/LoRa.hpp"
 #include "peripherals/Power.hpp"
+#include "peripherals/Wire.hpp"
 #include "util/Undervoltage.hpp"
 
 extern "C" {

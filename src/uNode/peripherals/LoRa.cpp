@@ -30,9 +30,6 @@
  *
  *******************************************************************************/
 
- // References:
- // [feather] adafruit-feather-m0-radio-with-lora-module.pdf
-
 #include <Arduino.h>
 #include "../../vendor/LMIC-Arduino/lmic.h"
 #include "../../vendor/LMIC-Arduino/hal/hal.h"
