@@ -85,7 +85,25 @@ uint8_t rtcMemFlagGet(const uint8_t slot, const uint8_t flag);
 uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offset, uint32_t &value);
 uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offset, uint16_t &value);
 uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offset, uint8_t &value);
-template <typename T> uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offset, T &value);
+template <typename T> uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offset, T &value) {
+  uint32_t chunk;
+  uint8_t *value_ptr = static_cast<uint8_t*>(static_cast<void*>(&value));
+  uint8_t s = slot;
+
+  for (uint16_t i = 0; i < sizeof(T); i += sizeof(uint32_t), s++) {
+    if (i + sizeof(uint32_t) <= sizeof(T)) { // Whole chunk?
+      memcpy(&chunk, value_ptr + i, sizeof(uint32_t));
+      ESP.rtcUserMemoryWrite(s, &chunk, sizeof(uint32_t));
+
+    } else { // Partial chunk
+      ESP.rtcUserMemoryRead(s, &chunk, sizeof(chunk));
+      memcpy(&chunk, value_ptr + i, sizeof(T) % sizeof(uint32_t));
+      ESP.rtcUserMemoryWrite(s, &chunk, sizeof(uint32_t));
+    }
+  }
+
+  return sizeof(T);
+}
 
 /**
  * Reads arbitrary structures or values on the RTC memory (up to 255 bytes)
@@ -95,7 +113,24 @@ template <typename T> uint8_t rtcMemWrite(const uint8_t slot, const uint8_t offs
 uint8_t rtcMemRead(const uint8_t slot, const uint8_t offset, uint32_t &value);
 uint8_t rtcMemRead(const uint8_t slot, const uint8_t offset, uint16_t &value);
 uint8_t rtcMemRead(const uint8_t slot, const uint8_t offset, uint8_t &value);
-template <typename T> uint8_t rtcMemRead(const uint8_t slot, const uint8_t offset, T &value);
+template <typename T> uint8_t rtcMemRead(const uint8_t slot, const uint8_t offset, T &value) {
+  uint32_t chunk;
+  uint8_t *value_ptr = static_cast<uint8_t*>(static_cast<void*>(&value));
+  uint8_t s = slot;
+
+  for (uint16_t i = 0; i < sizeof(T); i += sizeof(uint32_t), s++) {
+    if (i + sizeof(uint32_t) <= sizeof(T)) { // Whole chunk?
+      ESP.rtcUserMemoryRead(s, &chunk, sizeof(chunk));
+      memcpy(value_ptr + i, &chunk, sizeof(uint32_t));
+
+    } else { // Partial chunk
+      ESP.rtcUserMemoryRead(s, &chunk, sizeof(chunk));
+      memcpy(value_ptr + i, &chunk, sizeof(T) % sizeof(uint32_t));
+    }
+  }
+
+  return sizeof(T);
+}
 
 
 #endif

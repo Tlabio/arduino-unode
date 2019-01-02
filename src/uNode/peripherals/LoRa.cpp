@@ -39,6 +39,7 @@
 #include <SPI.h>
 
 #include "../util/SystemConfig.hpp"
+#include "../util/RTCMem.hpp"
 #include "../Pinout.hpp"
 #include "LoRa.hpp"
 
@@ -58,7 +59,7 @@ struct OTAAPersistence {
   uint32_t  devaddr;
   uint8_t   nwkKey[16];
   uint8_t   artKey[16];
-};
+} persistedConfig;
 
 // This EUI must be in little-endian format, so least-significant-byte
 // first. When copying an EUI from ttnctl output, this means to reverse
@@ -115,6 +116,20 @@ void onEvent(ev_t ev) {
       // Disable link check validation (automatically enabled
       // during join, but not supported by TTN at this time).
       LMIC_setLinkCheckMode(0);
+
+      // Persist the OTAA configuration
+      if (system_config.lora.mode == LORA_TTN_OTAA) {
+
+        // Take a snapshot of the session information
+        persistedConfig.netid = LMIC.netid;
+        persistedConfig.devaddr = LMIC.devaddr;
+        memcpy(persistedConfig.nwkKey, LMIC.nwkKey, sizeof(persistedConfig.nwkKey));
+        memcpy(persistedConfig.artKey, LMIC.artKey, sizeof(persistedConfig.artKey));
+
+        // Persist state on the RTC memory (persisted across deep sleeps)
+        rtcMemWrite(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
+        rtcMemFlagSet(RTCMEM_SLOT_BOOTFLAGS, BOOTFLAG_LORA_JOINED);
+      }
 
       // If the user wants to know when we are joined, call-out now
       if (LoRa.joinedCb != NULL) {
@@ -198,44 +213,27 @@ void LoRaClass::begin() {
                  (uint8_t*)system_config.lora.activation.abp.netKey,
                  (uint8_t*)system_config.lora.activation.abp.appKey);
 
-    // Set up the channels used by the Things Network, which corresponds
-    // to the defaults of most gateways. Without this, only three base
-    // channels from the LoRaWAN specification are used, which certainly
-    // works, so it is good for debugging, but can overload those
-    // frequencies, so be sure to configure the full frequency range of
-    // your network here (unless your network autoconfigures them).
-    // Setting up channels should happen after LMIC_setSession, as that
-    // configures the minimal channel set.
-
-    LMIC_setupChannel(0, 868100000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(1, 868300000, DR_RANGE_MAP(DR_SF12, DR_SF7B), BAND_CENTI);      // g-band
-    LMIC_setupChannel(2, 868500000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(3, 867100000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(4, 867300000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(5, 867500000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-    LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
-
-    // TTN defines an additional channel at 869.525Mhz using SF9 for class B
-    // devices' ping slots. LMIC does not have an easy way to define set this
-    // frequency and support for class B is spotty and untested, so this
-    // frequency is not configured here.
-
-    // Disable link check validation
-    LMIC_setLinkCheckMode(0);
-
-    // TTN uses SF9 for its RX2 window.
-    LMIC.dn2Dr = DR_SF9;
-
-    // Set data rate and transmit power for uplink
-    LMIC_setAdrMode(0);
-    LMIC_setDrTxpow(DR_SF7, 14);
+    // Configure channels
+    configureTTNChannels();
 
   }
 
   // Initialize LMIC in OTAA Mode
   if (system_config.lora.mode == LORA_TTN_OTAA) {
+
+    // If we are starting in OTAA mode and we are already joined, re-use the
+    // last saved information and resume the session.
+    if (rtcMemFlagGet(RTCMEM_SLOT_BOOTFLAGS, BOOTFLAG_LORA_JOINED) != 0) {
+      rtcMemRead(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
+
+      // Resume session
+      LMIC_setSession(persistedConfig.netid, persistedConfig.devaddr,
+                   (uint8_t*)persistedConfig.nwkKey,
+                   (uint8_t*)persistedConfig.artKey);
+
+      // Configure channels
+      configureTTNChannels();
+    }
 
   }
 
@@ -329,6 +327,46 @@ void LoRaClass::sendManaged(const char * data, size_t len,
 
   // First attempt is asap
   sendRaw(data, len);
+}
+
+/**
+ * Configure LMIC to use the pre-defined TTN channel configuration
+ */
+void LoRaClass::configureTTNChannels() {
+  // Set up the channels used by the Things Network, which corresponds
+  // to the defaults of most gateways. Without this, only three base
+  // channels from the LoRaWAN specification are used, which certainly
+  // works, so it is good for debugging, but can overload those
+  // frequencies, so be sure to configure the full frequency range of
+  // your network here (unless your network autoconfigures them).
+  // Setting up channels should happen after LMIC_setSession, as that
+  // configures the minimal channel set.
+
+  LMIC_setupChannel(0, 868100000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(1, 868300000, DR_RANGE_MAP(DR_SF12, DR_SF7B), BAND_CENTI);      // g-band
+  LMIC_setupChannel(2, 868500000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(3, 867100000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(4, 867300000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(5, 867500000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
+  LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
+
+  // TTN defines an additional channel at 869.525Mhz using SF9 for class B
+  // devices' ping slots. LMIC does not have an easy way to define set this
+  // frequency and support for class B is spotty and untested, so this
+  // frequency is not configured here.
+
+  // Disable link check validation
+  LMIC_setLinkCheckMode(0);
+
+  // TTN uses SF9 for its RX2 window.
+  LMIC.dn2Dr = DR_SF9;
+
+  // Set data rate and transmit power for uplink
+  LMIC_setAdrMode(0);
+  LMIC_setDrTxpow(DR_SF7, 14);
+
 }
 
 /**

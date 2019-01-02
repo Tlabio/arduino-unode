@@ -76,6 +76,12 @@ public:
    */
   void whenJoined(fnLoRaCallback cb);
 
+  /**
+   * Configure LMIC to use the pre-defined TTN channel configuration
+   */
+  void configureTTNChannels();
+
+
   struct {
 
     /**
