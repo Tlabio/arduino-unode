@@ -52,7 +52,7 @@ public:
 	// begin() must be called before use, and after any changes are made
 	// to the SDA and/or SCL pins.
 	void begin(void) const;
-    void end(void); // Restore pins to inputs
+  void end(void); // Restore pins to inputs
 
 	// Functions which take raw addresses (ie address passed must
 	// already indicate read/write mode)

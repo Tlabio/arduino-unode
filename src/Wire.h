@@ -22,25 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
-#include "Wire.hpp"
 
 /**
- * Singleton factory
+ * This file is solely a placeholder to prefer the uNode-given implementation
+ * of the wire library instead of other implementations.
  */
-GPIOSoftWire Wire;
-
-/**
- * Begin method that also configures the SDA/SCL ports
- */
-void GPIOSoftWire::begin(uint8_t sda, uint8_t scl) {
-  setSda(sda);
-  setScl(scl);
-  SoftWire::begin();
-}
-
-/**
- * Begin method without pins
- */
-void GPIOSoftWire::begin(void) {
-  SoftWire::begin();
-}
+#include "uNode/peripherals/Wire.hpp"

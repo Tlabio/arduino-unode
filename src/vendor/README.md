@@ -2,7 +2,7 @@
 
 This directory contains local mirrors of some vendor libraries that we used in the project. 
 
-Note that most of them have some level of local modifications and they are not carbon-copies of the upstream versions.
+Note that most of them have some level of local modifications. They are not carbon-copies of the upstream versions.
 
 ## Upstream Repositories
 

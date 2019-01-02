@@ -25,6 +25,10 @@
 #ifndef WIRE_H
 #define WIRE_H
 
+// Prohibit ESP8266 implementation of `Wire.h` to define the global Wire instance.
+// We are going to provide our own alternative.
+#define NO_GLOBAL_TWOWIRE
+
 #include "../../vendor/SoftWire/SoftWire.h"
 
 /**
@@ -36,12 +40,13 @@ public:
   /**
    * Default factory for the SoftWire singleton
    */
-  GPIOSoftWire(): SoftWire(0,0) { }
+  GPIOSoftWire(): SoftWire(0,0) { };
 
   /**
-   * Begin method that also configures the SDA/SCL ports
+   * Begin methods with and without pin configuration
    */
   void begin(uint8_t sda, uint8_t scl);
+  void begin(void);
 
 };
 
