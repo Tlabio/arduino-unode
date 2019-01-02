@@ -32,8 +32,8 @@
  * Current firmware version
  */
 #define UNODE_FIRMWARE_MAJOR    0
-#define UNODE_FIRMWARE_MINOR    5
-#define UNODE_FIRMWARE_VERSION  "0.5"
+#define UNODE_FIRMWARE_MINOR    6
+#define UNODE_FIRMWARE_VERSION  "0.6"
 
 /**
  * The callback function to use for letting the user know when a transmission is done
