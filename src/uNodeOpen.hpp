@@ -62,6 +62,30 @@ public:
   void sendLoRa(const char * data, size_t size, fnLoRaCallback whenDone = nullptr);
 
   /**
+   * Send a structure over LoRa
+   */
+  template <typename T>
+  void sendLoRa(const T& data, fnLoRaCallback whenDone = nullptr) {
+    this->sendLoRa(
+      static_cast<const char*>(static_cast<const void*>(&data)),
+      sizeof(T),
+      whenDone
+    );
+  }
+
+  /**
+   * Send a structure over LoRa
+   */
+  template <typename T>
+  void sendLoRa(const T* data, fnLoRaCallback whenDone = nullptr) {
+    this->sendLoRa(
+      static_cast<const char*>(static_cast<const void*>(data)),
+      sizeof(T),
+      whenDone
+    );
+  }
+
+  /**
    * Connect to the access point with the given name
    *
    * This function blocks  until it's connected to the access point.

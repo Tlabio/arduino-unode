@@ -26,7 +26,7 @@
   "keywords": [
     "communication"
   ],
-  "name": "uNode",
+  "name": "uNode-Open",
   "platforms": [
     "espressif8266"
   ],

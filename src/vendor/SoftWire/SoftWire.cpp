@@ -9,7 +9,7 @@
 #endif
 
 #include "SoftWire.h"
-#include "../src/uNode.hpp"
+#include "../src/uNodeOpen.hpp"
 
 // Force SDA low
 void SoftWire::sdaLow(const SoftWire *p)
