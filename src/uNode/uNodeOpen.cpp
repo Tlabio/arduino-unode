@@ -40,12 +40,12 @@ extern "C" {
 /**
  * Singleton constructor
  */
-__attribute__((weak)) uNodeClass uNode;
+__attribute__((weak)) uNodeClassOpen uNode;
 
 /**
  * Initialize the micro-node hardware
  */
-void uNodeClass::setup() {
+void uNodeClassOpen::setup() {
 
   // Initialize dynamic system config
   system_config_init();
@@ -76,7 +76,7 @@ void uNodeClass::setup() {
 /**
  * Update micro-node interfaces
  */
-void uNodeClass::step() {
+void uNodeClassOpen::step() {
   LoRa.step();
   if (system_config.undervoltageProtection) {
     undervoltageProtect();
@@ -86,7 +86,7 @@ void uNodeClass::step() {
 /**
  * Put all peripherals on idle
  */
-void uNodeClass::standby(STANDBY_MODE_t mode) {
+void uNodeClassOpen::standby(STANDBY_MODE_t mode) {
   if ((mode & 0x7) == STANDBY_ALL) {
     Power.off();
   } else {
@@ -105,7 +105,7 @@ void uNodeClass::standby(STANDBY_MODE_t mode) {
 /**
  * Send a packet over the LoRa network
  */
-void uNodeClass::sendLoRa(const char * data, size_t size, fnLoRaCallback whenDone) {
+void uNodeClassOpen::sendLoRa(const char * data, size_t size, fnLoRaCallback whenDone) {
   if (system_config.lora.mode == LORA_DISABLED) {
     return;
   }
@@ -125,7 +125,7 @@ void uNodeClass::sendLoRa(const char * data, size_t size, fnLoRaCallback whenDon
 /**
  * Enter deep sleep
  */
-void uNodeClass::deepSleep(const uint16_t seconds) {
+void uNodeClassOpen::deepSleep(const uint16_t seconds) {
   Power.off();
   ESP.deepSleep(seconds * 1e6, WAKE_RF_DEFAULT);
 }
@@ -133,7 +133,7 @@ void uNodeClass::deepSleep(const uint16_t seconds) {
 /**
  * Set the pin direction on the GPIO chip
  */
-void uNodeClass::pinMode(uint8_t pin, uint8_t mode) {
+void uNodeClassOpen::pinMode(uint8_t pin, uint8_t mode) {
   if (pin < 100) {  // Physical pin
     ::pinMode(pin, mode);
   } else { // Expansion pin
@@ -145,7 +145,7 @@ void uNodeClass::pinMode(uint8_t pin, uint8_t mode) {
 /**
  * Write a logical value on the pin
  */
-void uNodeClass::digitalWrite(uint8_t pin, uint8_t value) {
+void uNodeClassOpen::digitalWrite(uint8_t pin, uint8_t value) {
   if (pin < 100) {  // Physical pin
     ::digitalWrite(pin, value);
   } else { // Expansion pin
@@ -157,7 +157,7 @@ void uNodeClass::digitalWrite(uint8_t pin, uint8_t value) {
 /**
  * Read a logical value on the pin
  */
-int uNodeClass::digitalRead(uint8_t pin) {
+int uNodeClassOpen::digitalRead(uint8_t pin) {
   if (pin < 100) {  // Physical pin
     return ::digitalRead(pin);
   } else { // Expansion pin
@@ -169,7 +169,7 @@ int uNodeClass::digitalRead(uint8_t pin) {
 /**
  * Blink the built-in led
  */
-void uNodeClass::blink(const uint16_t on_ms, const uint16_t off_ms, const uint8_t cycles) {
+void uNodeClassOpen::blink(const uint16_t on_ms, const uint16_t off_ms, const uint8_t cycles) {
   ::pinMode(UPIN_GPIO, OUTPUT);
   for (uint8_t i = 0; i < cycles; ++i) {
     ::digitalWrite(UPIN_GPIO, LOW);

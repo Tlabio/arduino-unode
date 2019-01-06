@@ -43,7 +43,7 @@
 /**
  * The user-facing interface
  */
-class uNodeClass {
+class uNodeClassOpen {
 public:
 
   /**
@@ -143,10 +143,10 @@ public:
 };
 
 /**
- * Singleton of the uNodeClass, available as `uNode`
+ * Singleton of the uNodeClassOpen, available as `uNode`
  */
-#ifndef __UNODE_NO_EXPOSE
-extern uNodeClass uNode;
+#ifndef __UNODE_NO_GLOBALS
+extern uNodeClassOpen uNode;
 #endif
 
 #endif
