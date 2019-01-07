@@ -39,7 +39,7 @@
  */
 #define RTCMEM_SLOT_REBOOTS     RTCMEM_MAX_SLOT       // 1-slot wide
 #define RTCMEM_SLOT_BOOTFLAGS   RTCMEM_MAX_SLOT - 1   // 1-slot wide
-#define RTCMEM_SLOT_LORAPERSIST RTCMEM_MAX_SLOT - 11  // 10-slot wide
+#define RTCMEM_SLOT_LORAPERSIST RTCMEM_MAX_SLOT - 13  // 12-slot wide
 
 /**
  * A flag that denotes that the system went to sleep because of undervoltage

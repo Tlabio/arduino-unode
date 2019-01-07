@@ -69,7 +69,7 @@ public:
   /**
    * Call the designated callback when a LoRa packet is sent
    */
-  void whenSent(fnLoRaCallback cb);
+  void whenSent(fnLoRaDataCallback cb);
 
   /**
    * Call the designated callback when a LoRa has joined the network
@@ -99,7 +99,7 @@ public:
   /**
    * The user callback to call when a packet is sent
    */
-  fnLoRaCallback loraCb;
+  fnLoRaDataCallback loraCb;
 
   /**
    * The user callback to call when LoRa has joined a network

@@ -58,7 +58,7 @@ uNodeConfig unode_config = {
 /**
  * Helper function to shut down the chip when the packet is sent
  */
-void packetSent(int status) {
+void packetSent(int status, uint8_t * downstream_data, uint8_t size) {
   Serial.println("Packet Sent");
 
   // Go to sleep for 30 seconds

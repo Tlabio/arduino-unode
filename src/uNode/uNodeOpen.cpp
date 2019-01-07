@@ -99,13 +99,16 @@ void uNodeClassOpen::standby(STANDBY_MODE_t mode) {
     if (mode & STANDBY_WIFI) {
       Power.setWiFiRadio(0);
     }
+    if (mode & STANDBY_VBUS) {
+      Power.setVBusOverride(0);
+    }
   }
 }
 
 /**
  * Send a packet over the LoRa network
  */
-void uNodeClassOpen::sendLoRa(const char * data, size_t size, fnLoRaCallback whenDone) {
+void uNodeClassOpen::sendLoRa(const char * data, size_t size, fnLoRaDataCallback whenDone) {
   if (system_config.lora.mode == LORA_DISABLED) {
     return;
   }
@@ -164,6 +167,13 @@ int uNodeClassOpen::digitalRead(uint8_t pin) {
     Power.setGPIO(1);
     return GPIO.digitalRead(pin - 100);
   }
+}
+
+/**
+ * Enable or Disable the VBus explicitly
+ */
+void uNodeClassOpen::enablePeripherals(const uint8_t enabled) {
+  Power.setVBusOverride(enabled);
 }
 
 /**

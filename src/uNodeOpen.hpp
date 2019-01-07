@@ -59,13 +59,13 @@ public:
   /**
    * Send a packet over the LoRa network
    */
-  void sendLoRa(const char * data, size_t size, fnLoRaCallback whenDone = nullptr);
+  void sendLoRa(const char * data, size_t size, fnLoRaDataCallback whenDone = nullptr);
 
   /**
    * Send a structure over LoRa
    */
   template <typename T>
-  void sendLoRa(const T& data, fnLoRaCallback whenDone = nullptr) {
+  void sendLoRa(const T& data, fnLoRaDataCallback whenDone = nullptr) {
     this->sendLoRa(
       static_cast<const char*>(static_cast<const void*>(&data)),
       sizeof(T),
@@ -77,7 +77,7 @@ public:
    * Send a structure over LoRa
    */
   template <typename T>
-  void sendLoRa(const T* data, fnLoRaCallback whenDone = nullptr) {
+  void sendLoRa(const T* data, fnLoRaDataCallback whenDone = nullptr) {
     this->sendLoRa(
       static_cast<const char*>(static_cast<const void*>(data)),
       sizeof(T),
@@ -123,7 +123,7 @@ public:
   int digitalRead(uint8_t pin);
 
   /**
-   * Put all peripherals on standby
+   * Put all or some peripherals on standby
    */
   void standby(STANDBY_MODE_t mode = STANDBY_ALL);
 
@@ -131,6 +131,11 @@ public:
    * Enter deep sleep for the designated number of seconds
    */
   void deepSleep(const uint16_t seconds);
+
+  /**
+   * Enable or Disable the VBus explicitly
+   */
+  void enablePeripherals(const uint8_t enabled = 1);
 
   /**
    * Blink the built-in ESP8266 LED

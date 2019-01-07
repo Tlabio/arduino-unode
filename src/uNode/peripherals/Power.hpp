@@ -55,6 +55,12 @@ public:
   uint8_t getWiFiRadio();
 
   /**
+   * Enable/Disable VBus explicitly
+   */
+  void setVBusOverride(uint8_t enabled);
+  uint8_t getVBusOverride();
+
+  /**
    * Disable all peripherals
    */
   void off();
@@ -74,7 +80,8 @@ private:
     uint8_t   lora: 1;
     uint8_t   gpio: 1;
     uint8_t   wifi: 2;
-    uint8_t   _unused : 3;
+    uint8_t   ovrd: 1;
+    uint8_t   _unused : 2;
   } state;
 
 };

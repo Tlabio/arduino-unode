@@ -39,6 +39,7 @@
  * The callback function to use for letting the user know when a transmission is done
  */
 typedef void(*fnLoRaCallback)(int status);
+typedef void(*fnLoRaDataCallback)(int status, uint8_t *data, uint8_t len);
 
 /**
  * Standby mode enum constant
@@ -47,7 +48,8 @@ typedef enum {
   STANDBY_ALL    = 7,   // Put all peripherals on standby
   STANDBY_GPIO   = 1,   // Put GPIO expansion on standby
   STANDBY_WIFI   = 2,   // Put WiFi on standby
-  STANDBY_LORA   = 4    // Put LoRa on standby
+  STANDBY_LORA   = 4,   // Put LoRa on standby
+  STANDBY_VBUS   = 8    // Put VBus on standby, if not used by LoRa or GPIO
 } STANDBY_MODE_t;
 
 /**

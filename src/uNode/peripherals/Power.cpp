@@ -77,6 +77,7 @@ void PowerClass::begin() {
   state.vbus = 0;
   state.gpio = 0;
   state.lora = 0;
+  state.ovrd = 0;
   state.wifi = 0;
 }
 
@@ -84,7 +85,7 @@ void PowerClass::begin() {
  * Apply the state of the peripherals
  */
 void PowerClass::apply() {
-  if (state.gpio || state.lora) {
+  if (state.gpio || state.lora || state.ovrd) {
     logDebug("Enabling VBus");
     digitalWrite(UPIN_VBUS_EN, HIGH);
     state.vbus = 1;
@@ -198,6 +199,25 @@ void PowerClass::setWiFiRadio(uint8_t newState) {
 }
 uint8_t PowerClass::getWiFiRadio() {
   return state.wifi;
+}
+
+/**
+ * Enable/Disable VBus explicitly
+ */
+void PowerClass::setVBusOverride(uint8_t enabled) {
+  if (enabled && !state.ovrd) {
+    logDebug("Enabling VBus Manually");
+    state.ovrd = 1;
+    apply();
+
+  } if (!enabled && state.ovrd) {
+    logDebug("Disabling VBus Manually");
+    state.ovrd = 0;
+    apply();
+  }
+}
+uint8_t PowerClass::getVBusOverride() {
+  return state.ovrd;
 }
 
 /**

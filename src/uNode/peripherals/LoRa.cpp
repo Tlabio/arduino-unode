@@ -64,6 +64,8 @@ struct OTAAPersistence {
   uint32_t  devaddr;
   uint8_t   nwkKey[16];
   uint8_t   artKey[16];
+  uint32_t  seqnoDn;
+  uint32_t  seqnoUp;
 } persistedConfig;
 
 // This EUI must be in little-endian format, so least-significant-byte
@@ -120,6 +122,8 @@ void onEvent(ev_t ev) {
         // Take a snapshot of the session information
         persistedConfig.netid = LMIC.netid;
         persistedConfig.devaddr = LMIC.devaddr;
+        persistedConfig.seqnoDn = LMIC.seqnoDn;
+        persistedConfig.seqnoUp = LMIC.seqnoUp;
         memcpy(persistedConfig.nwkKey, LMIC.nwkKey, sizeof(persistedConfig.nwkKey));
         memcpy(persistedConfig.artKey, LMIC.artKey, sizeof(persistedConfig.artKey));
 
@@ -160,12 +164,25 @@ void onEvent(ev_t ev) {
         logDebug3("Received ", LMIC.dataLen, " bytes");
       }
 
+      // If we are using OTAA mode, it means we are using the RTC memory
+      // to keep track of the current state. Now it's a good time to update the
+      // frame counters.
+      if (system_config.lora.mode == LORA_TTN_OTAA) {
+        persistedConfig.seqnoDn = LMIC.seqnoDn;
+        persistedConfig.seqnoUp = LMIC.seqnoUp;
+        rtcMemWrite(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
+      }
+
       // We managed to send some data, reset possible pending re-try
       if (LoRa.flags.pending) {
         LoRa.flags.pending = 0;
       }
       if (LoRa.loraCb != NULL) {
-        LoRa.loraCb(EV_TXCOMPLETE);
+        if (LMIC.dataLen) {
+          LoRa.loraCb(EV_TXCOMPLETE, &LMIC.frame[LMIC.dataBeg], LMIC.dataLen);
+        } else {
+          LoRa.loraCb(EV_TXCOMPLETE, NULL, 0);
+        }
         LoRa.loraCb = NULL;
       }
       break;
@@ -178,6 +195,16 @@ void onEvent(ev_t ev) {
     case EV_RXCOMPLETE:
       // data received in ping slot
       logDebug("Rx Completed");
+
+      // If we are using OTAA mode, it means we are using the RTC memory
+      // to keep track of the current state. Now it's a good time to update the
+      // frame counters.
+      if (system_config.lora.mode == LORA_TTN_OTAA) {
+        persistedConfig.seqnoDn = LMIC.seqnoDn;
+        persistedConfig.seqnoUp = LMIC.seqnoUp;
+        rtcMemWrite(RTCMEM_SLOT_LORAPERSIST, 0, persistedConfig);
+      }
+
       break;
     case EV_LINK_DEAD:
       logDebug("Link Dead");
@@ -232,6 +259,10 @@ void LoRaClass::begin() {
                      (uint8_t*)persistedConfig.nwkKey,
                      (uint8_t*)persistedConfig.artKey);
 
+        // Restore frame counters
+        LMIC.seqnoDn = persistedConfig.seqnoDn;
+        LMIC.seqnoUp = persistedConfig.seqnoUp;
+
         // Configure channels
         configureTTNChannels();
       }
@@ -274,7 +305,7 @@ void LoRaClass::step() {
       // Check if we ran out of retries
       logDebug("Retries exceeded");
       if (loraCb != NULL) {
-        loraCb(0);
+        loraCb(0, NULL, 0);
         loraCb = NULL;
       }
     } else {
@@ -374,7 +405,7 @@ void LoRaClass::configureTTNChannels() {
 /**
  * Call the designated callback when a LoRa packet is sent
  */
-void LoRaClass::whenSent(fnLoRaCallback cb) {
+void LoRaClass::whenSent(fnLoRaDataCallback cb) {
   loraCb = cb;
 }
 
