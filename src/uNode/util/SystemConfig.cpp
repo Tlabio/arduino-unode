@@ -33,7 +33,7 @@ uNodeConfig system_config;
  * Initializes the system configuration using various possible sources to
  * complete this task.
  */
-void system_config_init() {
+void __attribute__((weak)) system_config_init() {
 
   // The default implementation is to use the user-provided structure
   memcpy(&system_config, &unode_config, sizeof(uNodeConfig));

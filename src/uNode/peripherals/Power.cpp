@@ -37,7 +37,7 @@ extern "C" {
 
 #define FPM_SLEEP_MAX_TIME 0xFFFFFFF
 
-#define DEBUG_CONTEXT "uNode"
+#define DEBUG_CONTEXT "Power"
 #include "../util/Debug.hpp"
 
 /**

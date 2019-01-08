@@ -29,6 +29,7 @@
 #include "peripherals/Power.hpp"
 #include "peripherals/Wire.hpp"
 #include "util/Undervoltage.hpp"
+#include "util/Health.hpp"
 
 extern "C" {
   #include "user_interface.h"
@@ -47,7 +48,8 @@ __attribute__((weak)) uNodeClassOpen uNode;
  */
 void uNodeClassOpen::setup() {
 
-  // Initialize dynamic system config
+  // Initialize core structures first
+  system_health_setup();
   system_config_init();
 
   // Set configuration defaults if they are missing
@@ -70,7 +72,10 @@ void uNodeClassOpen::setup() {
 
   // Make sure we are running on low speed
   system_update_cpu_freq(80);
-  logDebug("Booted firmware v" UNODE_FIRMWARE_VERSION);
+  logDebug("\nBooted firmware v" UNODE_FIRMWARE_VERSION);
+  if (system_config.undervoltageProtection) {
+    logDebug3("VCC measured at ", ESP.getVcc(), "mV");
+  }
 }
 
 /**
@@ -130,6 +135,8 @@ void uNodeClassOpen::sendLoRa(const char * data, size_t size, fnLoRaDataCallback
  */
 void uNodeClassOpen::deepSleep(const uint16_t seconds) {
   Power.off();
+  logDebug3("Sleeping for ", seconds, " sec");
+  Serial.flush();
   ESP.deepSleep(seconds * 1e6, WAKE_RF_DEFAULT);
 }
 

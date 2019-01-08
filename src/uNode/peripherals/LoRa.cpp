@@ -40,7 +40,7 @@
 #include "../Pinout.hpp"
 #include "LoRa.hpp"
 
-#define DEBUG_CONTEXT "uNode"
+#define DEBUG_CONTEXT "LoRa"
 #include "../util/Debug.hpp"
 
 /**

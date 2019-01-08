@@ -37,18 +37,18 @@
 #ifdef DEBUG_ENABLE
   #define logDebug(message) \
     if (system_config.serialLogLevel >= LOG_INFO) { \
-      Serial.println("[" DEBUG_CONTEXT "] LoRa " message); \
+      Serial.println("[" DEBUG_CONTEXT "] " message); \
     }
 
   #define logDebug2(message, s1) \
     if (system_config.serialLogLevel >= LOG_INFO) { \
-      Serial.print("[" DEBUG_CONTEXT "] LoRa " message); \
+      Serial.print("[" DEBUG_CONTEXT "] " message); \
       Serial.println(s1); \
     }
 
   #define logDebug3(message, s1, s2) \
     if (system_config.serialLogLevel >= LOG_INFO) { \
-      Serial.print("[" DEBUG_CONTEXT "] LoRa " message); \
+      Serial.print("[" DEBUG_CONTEXT "] " message); \
       Serial.print(s1); \
       Serial.println(s2); \
     }

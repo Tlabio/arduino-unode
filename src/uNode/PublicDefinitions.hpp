@@ -70,4 +70,37 @@ typedef enum {
   LOG_INFO      = 2,    // Info-level messages on the serial port
 } LOG_LEVEL_t;
 
+/**
+ * A structure that carries the system health check within 2 bytes
+ */
+struct system_health_t {
+
+  /**
+   * System VCC voltage (in millivolts) between 0~4095
+   */
+  uint16_t      vcc : 12;
+
+  /**
+   * A boolean flag that when set to 1, it means that the user-provided
+   * health check function has detected an error.
+   */
+  uint8_t       error : 1;
+
+  /**
+   * If the user-provided health check returned no error, this variable
+   * contains the reset reason. Otherwise it's defined by the user function.
+   */
+  uint8_t       reason : 3;
+
+};
+
+/**
+ * User-overridable system health-check function
+ *
+ * If this function returns `0`, then the system is assumed to be healthy.
+ * Otherwise a 3-bit error code should be returned (1 to 7), indicating the
+ * reason of the error.
+ */
+uint8_t __attribute__((weak)) system_health_check();
+
 #endif

@@ -22,19 +22,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
-#ifndef DYAMIC_CONFIG_H
-#define DYAMIC_CONFIG_H
-#include "../Config.hpp"
+#ifndef HEALTH_H
+#define HEALTH_H
+#include <Arduino.h>
+#include "../PublicDefinitions.hpp"
 
 /**
- * The config variable that should be used internally by the library
+ * Initialize the system health structure
  */
-extern uNodeConfig system_config;
+void system_health_setup();
 
 /**
- * Initializes the system configuration using various possible sources to
- * complete this task.
+ * Return the current system health status
  */
-void system_config_init();
+system_health_t * system_health_get();
 
 #endif
