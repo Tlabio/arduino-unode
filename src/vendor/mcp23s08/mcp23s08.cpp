@@ -131,7 +131,7 @@ void mcp23s08::gpioPinMode(uint8_t pin, uint8_t mode){
   if (pin < 8) { //0...7
 
     // Update input/output bit
-    (mode >= HIGH) ? _gpioDirection |= pin_mask : _gpioDirection &= ~pin_mask;
+    (mode == OUTPUT) ? _gpioDirection &= ~pin_mask : _gpioDirection |= pin_mask;
     writeByte(IODIR, _gpioDirection);
 
     // Update pull-up state
