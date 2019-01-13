@@ -22,7 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
-#include "GPIO.hpp"
+
+// 13/01/2019. Gijs Mos. GPIOClass::pinMode handles bad modes now consistently and safely.
+ 
+ #include "GPIO.hpp"
 #include "../Pinout.hpp"
 
 /**
@@ -56,16 +59,15 @@ void GPIOClass::end() {
  */
 void GPIOClass::pinMode(uint8_t pin, uint8_t mode) {
   switch (mode) {
+	case OUTPUT:  
     case INPUT:
+	case INPUT_PULLUP:
       mcp.gpioPinMode(pin, mode);
       break;
 
-    case INPUT_PULLUP:
-      mcp.gpioPinMode(pin, mode);
-      break;
-
-    case OUTPUT:
-      mcp.gpioPinMode(pin, mode);
+	default:
+	  // Least harmfull one if unknown mode
+      mcp.gpioPinMode(pin, INPUT);
       break;
   }
 }
@@ -78,7 +80,7 @@ void GPIOClass::digitalWrite(uint8_t pin, uint8_t value) {
 }
 
 /**
- * Read a logical value on the pin
+ * Read a logical value from the pin
  */
 int GPIOClass::digitalRead(uint8_t pin) {
   return mcp.gpioDigitalRead(pin);

@@ -22,6 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
+ 
+// 13/01/2019 Gijs Mos. Put UPIN_RFM_EN in high Z when LoRa not used to prevent power leak
+// through R2 when VBUS is high (for GPIO without LoRa). LoRa vendor library will make it
+// an output again and drive it appropriately when LoRa is in use.
+ 
 #include <Arduino.h>
 #include <SPI.h>
 #include "Power.hpp"
@@ -59,12 +64,9 @@ void PowerClass::begin() {
   digitalWrite(UPIN_RFM_DIO1, LOW);
   pinMode(UPIN_RFM_DIO0, OUTPUT);
   digitalWrite(UPIN_RFM_DIO0, LOW);
-  pinMode(UPIN_RFM_EN, OUTPUT);
-  digitalWrite(UPIN_RFM_EN, LOW);
-
-  // Make sure CS_RF is low
-  pinMode(UPIN_CS_RF, OUTPUT);
-  digitalWrite(UPIN_CS_RF, LOW);
+  // UPIN_RFM_EN to high Z. R2 will pull low when VBUS off. And high when VBUS on for GPIO,
+  // disabling the LoRa SPI and preventing leak through R2.
+  pinMode(UPIN_RFM_EN, INPUT);
 
   // Do not turn on WiFi
   wifi_station_disconnect();
@@ -127,8 +129,9 @@ void PowerClass::setLoRaRadio(uint8_t enabled) {
     digitalWrite(UPIN_RFM_DIO1, LOW);
     pinMode(UPIN_RFM_DIO0, OUTPUT);
     digitalWrite(UPIN_RFM_DIO0, LOW);
-    pinMode(UPIN_RFM_EN, OUTPUT);
-    digitalWrite(UPIN_RFM_EN, LOW);
+	// UPIN_RFM_EN to high Z. R2 will pull low when VBUS off. And high when VBUS on for GPIO,
+	// disabling the LoRa SPI and preventing leak through R2.
+	pinMode(UPIN_RFM_EN, INPUT);
 
     // Disable module and VBus
     state.lora = 0;
@@ -235,6 +238,10 @@ void PowerClass::off() {
   // Make sure we are leaking no power
   digitalWrite(UPIN_RFM_DIO1, LOW);
   digitalWrite(UPIN_RFM_DIO0, LOW);
-  digitalWrite(UPIN_RFM_EN, LOW);
+  digitalWrite(UPIN_RFM_DIO0, LOW);
+  // UPIN_RFM_EN to high Z. R2 will pull low when VBUS off. And high when VBUS on for GPIO,
+  // disabling the LoRa SPI and preventing leak through R2.
+  pinMode(UPIN_RFM_EN, INPUT);
   digitalWrite(UPIN_VBUS_EN, LOW);
+
 }

@@ -72,7 +72,8 @@ void uNodeClassOpen::setup() {
 
   // Make sure we are running on low speed
   system_update_cpu_freq(80);
-  logDebug("\nBooted firmware v" UNODE_FIRMWARE_VERSION);
+  logDebug("");  // Start at new line after ESP boot garbage
+  logDebug("Booted firmware v" UNODE_FIRMWARE_VERSION);
   if (system_config.undervoltageProtection) {
     logDebug3("VCC measured at ", ESP.getVcc(), "mV");
   }

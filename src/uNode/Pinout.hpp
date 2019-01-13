@@ -22,6 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
+ 
+// 13/01/2019 Gijs Mos. Removed UPIN_CS_RF as superfluous synonym of UPIN_RFM_EN
+// And put UPIN_RFM_EN in high Z when LoRa not used to prevent leak. 
+ 
 #ifndef PINOUT_H
 #define PINOUT_H
 
@@ -64,15 +68,12 @@
 #define UPIN_VBUS_EN    15
 #endif
 
-#ifndef UPIN_CS_RF
-#define UPIN_CS_RF      0
-#endif
 
 /**
  * Pin IDs when using the board schematic
  */
 #define D0              UPIN_GPIO   // Physical pins
-#define D1              UPIN_CS_RF
+#define D1              UPIN_RFM_EN
 #define D2              100         // Expansion pins
 #define D3              101
 #define D4              102
