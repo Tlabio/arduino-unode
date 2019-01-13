@@ -90,8 +90,8 @@ public:
   uint8_t     readGpioPort();                             // read the state of the pins (all)
   uint8_t     readGpioPortFast();
 
-  void        gpioDigitalWrite(uint8_t pin, bool value);  // write data to one pin
-  void        gpioDigitalWriteFast(uint8_t pin, bool value);
+  void        gpioDigitalWrite(uint8_t pin, uint8_t value);  // write data to one pin
+  void        gpioDigitalWriteFast(uint8_t pin, uint8_t value);
   int         gpioDigitalRead(uint8_t pin);               // read data from one pin
   uint8_t     gpioRegisterReadByte(byte reg);             // read a byte from chip register
   int         gpioDigitalReadFast(uint8_t pin);
@@ -130,6 +130,6 @@ private:
   uint8_t     _gpioDirection;
   uint8_t     _gpioPullup;
   uint8_t     _gpioState;
-    void      writeByte(byte addr, byte data);
+  void      writeByte(byte addr, byte data);
 };
 #endif

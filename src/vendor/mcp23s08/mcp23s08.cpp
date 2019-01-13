@@ -1,3 +1,7 @@
+// 13/02/2019.  Gijs Mos.  Handling of pin states now conform Arduino "wiring" standard.
+// Returned pin logic values are now either HIGH or LOW.  But for setting HIGH = non-zero = true
+// and LOW = 0 = false.
+
 #include <inttypes.h>
 
 #include <Arduino.h>
@@ -135,7 +139,7 @@ void mcp23s08::gpioPinMode(uint8_t pin, uint8_t mode){
     writeByte(IODIR, _gpioDirection);
 
     // Update pull-up state
-    if (mode >= 2) {
+    if (mode == INPUT_PULLUP) {
       if ((_gpioPullup & pin_mask) == 0) {
         _gpioPullup |= pin_mask;
         writeByte(GPPU, _gpioPullup);
@@ -174,7 +178,7 @@ int mcp23s08::gpioDigitalReadFast(uint8_t pin){
     int temp = bitRead(_gpioState,pin);
     return temp;
   } else {
-    return 0;
+    return LOW;
   }
 }
 
@@ -195,16 +199,16 @@ void mcp23s08::portPullup(uint8_t data) {
 
 
 
-void mcp23s08::gpioDigitalWrite(uint8_t pin, bool value){
+void mcp23s08::gpioDigitalWrite(uint8_t pin, uint8_t value){
   if (pin < 8){//0...7
-    value == HIGH ? _gpioState |= (1 << pin) : _gpioState &= ~(1 << pin);
+    value  ? _gpioState |= (1 << pin) : _gpioState &= ~(1 << pin);
     writeByte(GPIO, _gpioState);
   }
 }
 
-void mcp23s08::gpioDigitalWriteFast(uint8_t pin, bool value){
+void mcp23s08::gpioDigitalWriteFast(uint8_t pin, uint8_t value){
   if (pin < 8){//0...8
-    value == HIGH ? _gpioState |= (1 << pin) : _gpioState &= ~(1 << pin);
+    value ? _gpioState |= (1 << pin) : _gpioState &= ~(1 << pin);
   }
 }
 
@@ -213,8 +217,8 @@ void mcp23s08::gpioPortUpdate(){
 }
 
 int mcp23s08::gpioDigitalRead(uint8_t pin){
-  if (pin < 8) return (int)(readAddress(GPIO) & 1 << pin);
-  return 0;
+  if (pin < 8) return ((readAddress(GPIO) & (1 << pin) ? HIGH : LOW ));
+  return LOW;
 }
 
 uint8_t mcp23s08::gpioRegisterReadByte(byte reg){
