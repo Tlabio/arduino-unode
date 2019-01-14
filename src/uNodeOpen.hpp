@@ -121,7 +121,12 @@ public:
    * Read a logical value on the pin
    */
   int digitalRead(uint8_t pin);
-
+  
+  /**
+   * Time a half-pulse on a pin (max 500 microseconds)
+   */
+  int timeHalfPulse(uint8_t pin);
+  
   /**
    * Put all or some peripherals on standby
    */

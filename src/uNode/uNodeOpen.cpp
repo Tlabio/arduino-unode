@@ -177,6 +177,18 @@ int uNodeClassOpen::digitalRead(uint8_t pin) {
   }
 }
 
+  /**
+   * Time a half-pulse on a pin (max 500 microseconds)
+   */
+int uNodeClassOpen::timeHalfPulse(uint8_t pin) {
+  if (pin < 100) {  // Physical pin
+    return -1;
+  } else { // Expansion pin
+    Power.setGPIO(1);
+    return GPIO.timeHalfPulse(pin - 100);
+  }
+}
+
 /**
  * Enable or Disable the VBus explicitly
  */
