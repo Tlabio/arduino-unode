@@ -32,8 +32,8 @@
  * Current firmware version
  */
 #define UNODE_FIRMWARE_MAJOR    0
-#define UNODE_FIRMWARE_MINOR    7
-#define UNODE_FIRMWARE_VERSION  "0.7"
+#define UNODE_FIRMWARE_MINOR    8
+#define UNODE_FIRMWARE_VERSION  "0.8"
 
 /**
  * The callback function to use for letting the user know when a transmission is done
@@ -77,6 +77,7 @@ typedef enum {
 #define LOG_DISABLED    { LOG_LEVEL_DISABLED, 115200 }
 #define LOG_INFO        { LOG_LEVEL_INFO, 115200 }
 #define LOG_INFO_74880  { LOG_LEVEL_INFO, 74880 }
+#define LOG_INFO_9600   { LOG_LEVEL_INFO, 9600 }
 
 /**
  * Spreading factor for uNode

@@ -8,6 +8,21 @@
 
 This repository is currently being renovated. More information will be available on the README and on the Wiki page soon.
 
+## Changelog
+
+#### 0.7.0
+
+* First release circulated with beta testers
+
+#### 0.8.0
+
+* **CHANGED** : Swapped `.undervoltageProtection` and `.serialLogLevel`
+* **CHANGED** : `.serialLogLevel` enum is now `.logging` structure.
+* **CHANGED** : `.undervoltageProtection` boolean is now `.undervoltageProtection` structure.
+* **ADDED** : Logging baud rate can be configured via `.logging.baud`
+* **ADDED** : Under-voltage protection limits can be now configured in the `.undervoltageProtection` structure. 
+* **ADDED** : `.tx_sf`, `.tx_power` and `.adr` on LoRa configuration segment.
+
 ## Closed-Source Features
 
 The following features are closed-source and they are only available on the binary release of the library:

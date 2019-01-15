@@ -39,6 +39,7 @@ step                            KEYWORD2
 # Constants (LITERAL2)
 ########################################
 
+# uNode API
 UPIN_SCK                        LITERAL2
 UPIN_MISO                       LITERAL2
 UPIN_MOSI                       LITERAL2
@@ -61,9 +62,26 @@ STANDBY_ALL                     LITERAL2
 STANDBY_GPIO                    LITERAL2
 STANDBY_WIFI                    LITERAL2
 STANDBY_LORA                    LITERAL2
+
+# LoRA Constants
 LORA_DISABLED                   LITERAL2
 LORA_TTN_ABP                    LITERAL2
 LORA_TTN_OTAA                   LITERAL2
+LORA_SF_DEFAULT                 LITERAL2
+LORA_SF12                       LITERAL2
+LORA_SF11                       LITERAL2
+LORA_SF10                       LITERAL2
+LORA_SF9                        LITERAL2
+LORA_SF8                        LITERAL2
+LORA_SF7B                       LITERAL2
+LORA_SF7B                       LITERAL2
+
+# Logging
 LOG_DEFAULT                     LITERAL2
 LOG_DISABLED                    LITERAL2
 LOG_INFO                        LITERAL2
+LOG_INFO_74880                  LITERAL2
+LOG_INFO_9600                   LITERAL2
+LOG_LEVEL_DEFAULT               LITERAL2
+LOG_LEVEL_DISABLED              LITERAL2
+LOG_LEVEL_INFO                  LITERAL2
