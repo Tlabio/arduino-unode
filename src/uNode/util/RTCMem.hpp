@@ -40,6 +40,7 @@
 #define RTCMEM_SLOT_REBOOTS     RTCMEM_MAX_SLOT       // 1-slot wide
 #define RTCMEM_SLOT_BOOTFLAGS   RTCMEM_MAX_SLOT - 1   // 1-slot wide
 #define RTCMEM_SLOT_LORAPERSIST RTCMEM_MAX_SLOT - 13  // 12-slot wide
+#define RTCMEM_SLOT_SKETCHID    RTCMEM_MAX_SLOT - 14  // 1-slot wide
 
 /**
  * A flag that denotes that the system went to sleep because of undervoltage
@@ -53,29 +54,44 @@
 #define BOOTFLAG_LORA_JOINED              2
 
 /**
- * Read a verified value from the RTC memory
+ * Check the RTC memory status and if it's in an invalid state, restart
  */
-uint8_t rtcMemVeriRead(const uint8_t slot, const uint8_t defaultValue = 0);
+void rtcmem_setup();
 
 /**
- * Write a verified value to the RTC memory
+ * Read a verified value from the RTC memory (24 usable bits)
  */
-void rtcMemVeriWrite(const uint8_t slot, const uint8_t value);
+uint32_t rtcMemVeriRead(const uint8_t slot, const uint32_t defaultValue = 0);
+
+/**
+ * Write a verified value to the RTC memory (24 usable bits)
+ */
+void rtcMemVeriWrite(const uint8_t slot, const uint32_t value);
 
 /**
  * Set a flag to a verified RTC slot
  */
-void rtcMemFlagSet(const uint8_t slot, const uint8_t flag);
+void rtcMemFlagSet(const uint8_t slot, const uint32_t flag);
 
 /**
  * Unset a flag to a verified RTC slot
  */
-void rtcMemFlagUnset(const uint8_t slot, const uint8_t flag);
+void rtcMemFlagUnset(const uint8_t slot, const uint32_t flag);
 
 /**
  * Read a flag to a verified RTC slot
  */
-uint8_t rtcMemFlagGet(const uint8_t slot, const uint8_t flag);
+uint32_t rtcMemFlagGet(const uint8_t slot, const uint32_t flag);
+
+/**
+ * Invalidates an RTC slot
+ */
+void rtcMemInvalidate(const uint8_t slot);
+
+/**
+ * Invalidates the entire RTC memory
+ */
+void rtcMemInvalidateAll();
 
 /**
  * Write arbitrary structures or values on the RTC memory (up to 255 bytes)

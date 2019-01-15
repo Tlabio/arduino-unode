@@ -24,52 +24,70 @@
  *******************************************************************************/
 #include <Arduino.h>
 #include "RTCMem.hpp"
+#include "Checksums.hpp"
+
+#define DEBUG_CONTEXT "RTCMem"
+#include "../util/Debug.hpp"
+
+/**
+ * The initial CRC value, that must be non-zero in order to result into a
+ * non-zero CRC4 checksum on empty data.
+ */
+const uint8_t CRC_INITIAL = 0xA;
 
 /**
  * Checks if a triple-copy checksum is valid
  */
 bool csum_is_valid(uint32_t & data) {
-  uint8_t * copies = (uint8_t*)&data;
-  if (copies[1] != (copies[0] + 2)) return false;
-  if (copies[2] != (copies[0] * 5)) return false;
-  if (copies[3] != (255 - copies[0])) return false;
-  return true;
+  return (data & 0xF) == crc4(CRC_INITIAL, data >> 4, 28);
 }
 
 /**
  * Returns the value from a triple-copy structure
  */
-uint8_t csum_get(uint32_t & data) {
-  if (!csum_is_valid(data)) return 0;
-  uint8_t * copies = (uint8_t*)&data;
-  return copies[0];
+uint32_t csum_get(uint32_t & data) {
+  return data >> 4;
 }
 
 /**
  * Sets the value to a triple-copy structure
  */
-void csum_set(uint32_t & data, uint8_t value) {
-  uint8_t * copies = (uint8_t*)&data;
-  copies[0] = value;
-  copies[1] = value + 2;
-  copies[2] = value * 5;
-  copies[3] = 255 - value;
+void csum_set(uint32_t & data, uint32_t value) {
+  data = (value << 4) | crc4(CRC_INITIAL, data, 28);
 }
 
 /**
  * Increments the value of the triple-copy structure by one. If the value
  * is not valid, it assumes it to be 0.
  */
-uint8_t csum_inc(uint32_t & data) {
+uint32_t csum_inc(uint32_t & data) {
   uint8_t value = csum_get(data) + 1;
   csum_set(data, value);
   return value;
 }
 
 /**
+ * Check the state of the RTC memory and reset it to zero if it's invalid
+ */
+void rtcmem_setup() {
+  const char * bytes = ESP.getSketchMD5().c_str();
+  uint16_t sketch_crc16 = crc16((uint8_t*)bytes, 32);
+  uint32_t saved_crc16 = rtcMemVeriRead(RTCMEM_SLOT_SKETCHID);
+
+  // If the sketch checksum is invalid
+  if (saved_crc16 != sketch_crc16) {
+    logDebug("Reseting RTC RAM due to invalid sketch checksum");
+    rtcMemInvalidateAll();
+  }
+
+  // Save the new sketch memory
+  rtcMemVeriWrite(RTCMEM_SLOT_SKETCHID, sketch_crc16);
+}
+
+/**
  * Read a verified value from the RTC memory
  */
-uint8_t rtcMemVeriRead(const uint8_t slot, const uint8_t defaultValue) {
+uint32_t rtcMemVeriRead(const uint8_t slot, const uint32_t defaultValue) {
   uint32_t data;
 
   // Read a 32-bit integer from the designated offset
@@ -87,7 +105,7 @@ uint8_t rtcMemVeriRead(const uint8_t slot, const uint8_t defaultValue) {
 /**
  * Write a verified value to the RTC memory
  */
-void rtcMemVeriWrite(const uint8_t slot, const uint8_t value) {
+void rtcMemVeriWrite(const uint8_t slot, const uint32_t value) {
   uint32_t data;
 
   // Define the value including checksum guards
@@ -100,8 +118,8 @@ void rtcMemVeriWrite(const uint8_t slot, const uint8_t value) {
 /**
  * Set a flag to a verified RTC slot
  */
-void rtcMemFlagSet(const uint8_t slot, const uint8_t flag) {
-  uint8_t value = rtcMemVeriRead(slot, 0);
+void rtcMemFlagSet(const uint8_t slot, const uint32_t flag) {
+  uint32_t value = rtcMemVeriRead(slot, 0);
   value |= flag;
   rtcMemVeriWrite(slot, value);
 }
@@ -109,8 +127,8 @@ void rtcMemFlagSet(const uint8_t slot, const uint8_t flag) {
 /**
  * Unset a flag to a verified RTC slot
  */
-void rtcMemFlagUnset(const uint8_t slot, const uint8_t flag) {
-  uint8_t value = rtcMemVeriRead(slot, 0);
+void rtcMemFlagUnset(const uint8_t slot, const uint32_t flag) {
+  uint32_t value = rtcMemVeriRead(slot, 0);
   value &= ~flag;
   rtcMemVeriWrite(slot, value);
 }
@@ -118,9 +136,26 @@ void rtcMemFlagUnset(const uint8_t slot, const uint8_t flag) {
 /**
  * Read a flag to a verified RTC slot
  */
-uint8_t rtcMemFlagGet(const uint8_t slot, const uint8_t flag) {
-  uint8_t value = rtcMemVeriRead(slot, 0);
+uint32_t rtcMemFlagGet(const uint8_t slot, const uint32_t flag) {
+  uint32_t value = rtcMemVeriRead(slot, 0);
   return value & flag;
+}
+
+/**
+ * Invalidates an RTC slot
+ */
+void rtcMemInvalidate(const uint8_t slot) {
+  uint32_t data = 0x00;
+  ESP.rtcUserMemoryWrite(slot, &data, sizeof(data));
+}
+
+/**
+ * Invalidates the entire RTC memory
+ */
+void rtcMemInvalidateAll() {
+  for (uint8_t i=0; i<RTCMEM_MAX_SLOT; ++i) {
+    rtcMemInvalidate(i);
+  }
 }
 
 /**
