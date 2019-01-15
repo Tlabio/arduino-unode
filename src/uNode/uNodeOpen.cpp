@@ -52,35 +52,41 @@ void uNodeClassOpen::setup() {
   // Initialize core structures first
   system_health_setup();
   system_config_setup();
-  rtcmem_setup();
 
   // Set configuration defaults if they are missing
-  if (CFG_DEFAULT == system_config.lora.tx_sf) system_config.lora.tx_sf = LORA_SF7;
-  if (CFG_DEFAULT == system_config.lora.tx_power) system_config.lora.tx_power = 14;
-  if (CFG_DEFAULT == system_config.lora.tx_timeout) system_config.lora.tx_timeout = 10000;
-  if (CFG_DEFAULT == system_config.lora.tx_retries) system_config.lora.tx_retries = 3;
-  if (CFG_DEFAULT == system_config.serialLogLevel)  system_config.serialLogLevel = LOG_INFO;
+  if (CONFIG_DEFAULT == system_config.lora.tx_sf) system_config.lora.tx_sf = LORA_SF7;
+  if (CONFIG_DEFAULT == system_config.lora.tx_power) system_config.lora.tx_power = 14;
+  if (CONFIG_DEFAULT == system_config.lora.tx_timeout) system_config.lora.tx_timeout = 10000;
+  if (CONFIG_DEFAULT == system_config.lora.tx_retries) system_config.lora.tx_retries = 3;
+  if (CONFIG_DEFAULT == system_config.logging.level)  system_config.logging.level = LOG_LEVEL_INFO;
+  if (CONFIG_DEFAULT == system_config.logging.baud)  system_config.logging.baud = 115200;
+  if (CONFIG_DEFAULT == system_config.undervoltageProtection.disableThreshold) system_config.undervoltageProtection.disableThreshold = 3100;
+  if (CONFIG_DEFAULT == system_config.undervoltageProtection.enableThreshold) system_config.undervoltageProtection.enableThreshold = 3200;
 
   // Initialize power management before trying to check battery status. This
   // also makes sure that we don't wake-up with RF on.
   Power.begin();
 
   // Check for undervoltage and if such condition is met, shut the system down
-  if (system_config.undervoltageProtection) {
+  if (system_config.undervoltageProtection.disableThreshold != 0xFFFF) {
     delay(100); // Wait for voltage to stabilize
-    undervoltageProtect();
+    undervoltageCheckLockdown(); // Maintain lock-down if it's active
+    undervoltageProtect(); // Check if we should enter a lock-down
   }
 
   // Bare minimum hardware initialization
-  Serial.begin(115200);
+  Serial.begin(system_config.logging.baud);
 
   // Make sure we are running on low speed
   system_update_cpu_freq(80);
   logDebug("");  // Start at new line after ESP boot garbage
   logDebug("Booted firmware v" UNODE_FIRMWARE_VERSION);
-  if (system_config.undervoltageProtection) {
+  if (system_config.undervoltageProtection.disableThreshold != 0xFFFF) {
     logDebug("VCC measured at %d mV", ESP.getVcc());
   }
+
+  // Initialize the RTC memory
+  rtcmem_setup();
 }
 
 /**
@@ -88,7 +94,7 @@ void uNodeClassOpen::setup() {
  */
 void uNodeClassOpen::step() {
   LoRa.step();
-  if (system_config.undervoltageProtection) {
+  if (system_config.undervoltageProtection.disableThreshold != 0xFFFF) {
     undervoltageProtect();
   }
 }

@@ -36,7 +36,7 @@
 // Macros that expand to debug logging
 #ifdef DEBUG_ENABLE
   #define logDebug(message, ...) \
-    if (system_config.serialLogLevel >= LOG_INFO) { \
+    if (system_config.logging.level >= LOG_LEVEL_INFO) { \
       Serial.printf("[" DEBUG_CONTEXT "] " message "\n", ##__VA_ARGS__); \
     }
 

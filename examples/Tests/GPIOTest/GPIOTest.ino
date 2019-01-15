@@ -64,13 +64,16 @@ uNodeConfig unode_config = {
   .lora = {
     .mode = LORA_DISABLED           // Disable LoRa. Consult TTN examples to switch LoRa on.
   },
-  .undervoltageProtection = true,
-  .serialLogLevel = LOG_DEFAULT,    // Or use LOG_DISABLED or LOG_INFO
+  .logging = LOG_DEFAULT            // Or use LOG_DISABLED or LOG_INFO
 };
 
 const uint8_t evenPins[] = { D2, D4, D6, D8 };
 const uint8_t oddPins[] = { D3, D5, D7, D9 };
 const uint8_t nPins = 4;
+
+// Forward declarations
+unsigned functionalTest( const uint8_t a[], const uint8_t b[] );
+unsigned stressTest( const uint8_t a[], const uint8_t b[] );
 
 /**
    Sketch setup

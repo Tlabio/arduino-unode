@@ -384,8 +384,10 @@ void LoRaClass::configureTTNChannels() {
   LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
   LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
 
-  // FSK is not possible with uNode v1.1
-  // LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
+  // FSK is not possible with uNode v1.1, so the following line cannot be used:
+  //LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
+  // But the channel 8 has to be used, so we are repeating channel 0
+  LMIC_disableChannel(8);
 
   // TTN defines an additional channel at 869.525Mhz using SF9 for class B
   // devices' ping slots. LMIC does not have an easy way to define set this
@@ -400,12 +402,18 @@ void LoRaClass::configureTTNChannels() {
   LMIC.dn2Dr = DR_SF9;
 
   // Set data rate and transmit power for uplink
-  logDebug("Using tx_sf=%d, pow=%d", system_config.lora.tx_sf, system_config.lora.tx_power);
   LMIC_setDrTxpow(
     system_config.lora.tx_sf - 1,
     system_config.lora.tx_power
   );
 
+  // Debug
+  logDebug(
+    "Configured with SF=#%d, PW=%d, ADR=%d",
+    system_config.lora.tx_sf,
+    system_config.lora.tx_power,
+    system_config.lora.adr
+  );
 }
 
 /**

@@ -26,6 +26,15 @@
 #define UNDERVOLTAGE_H
 
 /**
+ * Checks the undervoltage lockdown
+ *
+ * This should be called as early as possible in the boot sequence. It checks if
+ * there is an active under-voltage lockdown and if the voltage is high enough
+ * to recover.
+ */
+void undervoltageCheckLockdown();
+
+/**
  * Checks for undervoltage condition in the system
  *
  * If the voltage is lower than `disableThreshold` the board will boot into the
@@ -36,7 +45,6 @@
  * If the voltage is higher than `enableThreshold`, the power will be enabled
  * back again and normal operation will resume.
  */
-void undervoltageProtect(uint32_t disableThreshold = 3100,
-                         uint32_t enableThreshold = 3200);
+void undervoltageProtect();
 
 #endif

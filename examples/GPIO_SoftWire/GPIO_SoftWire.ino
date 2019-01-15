@@ -39,8 +39,7 @@ ADC_MODE(ADC_VCC);
 uNodeConfig unode_config = {
   .lora = {
     .mode = LORA_DISABLED
-  },
-  .undervoltageProtection = true
+  }
 };
 
 /**

@@ -51,8 +51,7 @@ uNodeConfig unode_config = {
         .devEui = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
       }
     }
-  },
-  .undervoltageProtection = true
+  }
 };
 
 /**

@@ -31,12 +31,12 @@
 /**
  * A general-purpose constant that the user can use for setting a default config
  */
-#define  CFG_DEFAULT    0
+#define  CONFIG_DEFAULT    0
 
 /**
  * The LoRA Configuration parameters
  */
-struct uNodeLoRAConfig {
+struct uNodeConfigLora {
 
   /**
    * LoRA mode
@@ -98,6 +98,40 @@ struct uNodeLoRAConfig {
 };
 
 /**
+ * The LoRA Configuration parameters
+ */
+struct uNodeConfigUV {
+
+  /**
+   * Cut-off voltage (low)
+   */
+  uint16_t            disableThreshold;
+
+  /**
+   * Activation-off voltage (high)
+   */
+  uint16_t            enableThreshold;
+
+};
+
+/**
+ * Debug log structure
+ */
+struct uNodeConfigLogging {
+
+  /**
+   * The logging level
+   */
+  LOG_LEVEL_t  level;
+
+  /**
+   * Baud rate for the serial console
+   */
+  uint32_t      baud;
+
+};
+
+/**
  * The device configuration
  */
 struct uNodeConfig {
@@ -105,17 +139,17 @@ struct uNodeConfig {
   /**
    * The LoRA Configuration
    */
-  uNodeLoRAConfig     lora;
-
-  /**
-   * Under-voltage protection (for LiPo Coin-Cell Batteries)
-   */
-  bool                undervoltageProtection;
+  uNodeConfigLora       lora;
 
   /**
    * Serial port debug level
    */
-  LOG_LEVEL_t         serialLogLevel;
+  uNodeConfigLogging    logging;
+
+  /**
+   * Under-voltage protection (for LiPo Coin-Cell Batteries)
+   */
+  uNodeConfigUV         undervoltageProtection;
 
 };
 

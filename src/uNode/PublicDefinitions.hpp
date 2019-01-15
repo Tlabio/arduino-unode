@@ -62,13 +62,21 @@ typedef enum {
 } LORA_MODE_t;
 
 /**
- * Debug log level
+ * Log level constants
  */
 typedef enum {
-  LOG_DEFAULT   = 0,    // Default logging value
-  LOG_DISABLED  = 1,    // Do not echo anything on the serial port
-  LOG_INFO      = 2,    // Info-level messages on the serial port
+  LOG_LEVEL_DEFAULT   = 0,    // Default logging value
+  LOG_LEVEL_DISABLED  = 1,    // Do not echo anything on the serial port
+  LOG_LEVEL_INFO      = 2,    // Info-level messages on the serial port
 } LOG_LEVEL_t;
+
+/**
+ * Log structure constants, syntax-compatible with v0.7.0
+ */
+#define LOG_DEFAULT     { LOG_LEVEL_DEFAULT, 115200 }
+#define LOG_DISABLED    { LOG_LEVEL_DISABLED, 115200 }
+#define LOG_INFO        { LOG_LEVEL_INFO, 115200 }
+#define LOG_INFO_74880  { LOG_LEVEL_INFO, 74880 }
 
 /**
  * Spreading factor for uNode
@@ -83,6 +91,12 @@ typedef enum {
   LORA_SF7,
   LORA_SF7B
 } LORA_SPREADFACTOR_t;
+
+/**
+ * Constants for the uNodeUVConfig
+ */
+#define UNDERVOLTAGE_DEFAULT  { CONFIG_DEFAULT, CONFIG_DEFAULT }
+#define UNDERVOLTAGE_DISABLED { 0xFFFF, 0xFFFF }
 
 /**
  * A structure that carries the system health check within 2 bytes

@@ -24,18 +24,18 @@
  *******************************************************************************/
 
  /******************************************************************************
-  * This scetch is the bare minimum sketch with: 
+  * This scetch is the bare minimum sketch with:
   *  - LoRa switched off
   *  - Under voltage protection switched on
   *  - Async port initialised to 115200 b/s with default logging on
   * and is does nothing usefull. That is for you to add...
-  *  
+  *
   *  The board set up should be:
   *     Generic ESP8266 module
   *     Flash Mode = DIO
   *     Flash Size = Select a 4 MB option. Remember you need twice the space for OTA
   *     And your port, either on the network or on serial
-  *     
+  *
   * Contributed 13/01/2019, Gijs Mos, Sensemakers Amsterdam, www.sensemakersams.org
   */
 #include <uNodeOpen.hpp>
@@ -53,8 +53,7 @@ uNodeConfig unode_config = {
   .lora = {
     .mode = LORA_DISABLED           // Disable LoRa. Consult TTN examples to switch LoRa on.
   },
-  .undervoltageProtection = true,
-  .serialLogLevel = LOG_DEFAULT,    // Or use LOG_DISABLED or LOG_INFO
+  .logging = LOG_DEFAULT            // Or use LOG_DISABLED or LOG_INFO
 };
 
 /**

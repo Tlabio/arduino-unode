@@ -23,38 +23,19 @@
  *
  *******************************************************************************/
 #include <Arduino.h>
+#include "SystemConfig.hpp"
 #include "Undervoltage.hpp"
 #include "RTCMem.hpp"
 
 /**
- * Checks for undervoltage condition in the system
+ * Checks the undervoltage lockdown
  *
- * If the voltage is lower than `disableThreshold` the board will boot into the
- * lowest power mode possible and go right back to sleep ASAP. This will reduce
- * the power consumption to the bare minimum, enabling protection of the battery
- * and the rest of the system.
- *
- * If the voltage is higher than `enableThreshold`, the power will be enabled
- * back again and normal operation will resume.
+ * This should be called as early as possible in the boot sequence. It checks if
+ * there is an active under-voltage lockdown and if the voltage is high enough
+ * to recover.
  */
-void undervoltageProtect(uint32_t disableThreshold, uint32_t enableThreshold) {
+void undervoltageCheckLockdown() {
   uint8_t bootflags = rtcMemVeriRead(RTCMEM_SLOT_BOOTFLAGS);
-
-  // If the voltage is too low don't even boot further
-  if (ESP.getVcc() < disableThreshold) {
-
-    // Make sure we set the undervoltage protection boot flag set
-    if ((bootflags & BOOTFLAG_UNDERVOLTAGE_PROTECTION) == 0) {
-      bootflags |= BOOTFLAG_UNDERVOLTAGE_PROTECTION;
-      rtcMemVeriWrite(RTCMEM_SLOT_BOOTFLAGS, bootflags);
-    }
-
-    // Sleep for the maximum number of time that we can sleep. And when we
-    // come back to life make sure we don't cause any spike that could take the
-    // life of the battery down quicker.
-    ESP.deepSleep(1800 * 1e6, WAKE_RF_DISABLED);
-    return;
-  }
 
   // If the system was shut down because of an undervoltage event, do not power
   // back again until the voltage raises above `enableThreshold` (or a normal
@@ -62,7 +43,7 @@ void undervoltageProtect(uint32_t disableThreshold, uint32_t enableThreshold) {
   if ((bootflags & BOOTFLAG_UNDERVOLTAGE_PROTECTION) != 0) {
 
     // If the threshold is not met, go back to sleep
-    if (ESP.getVcc() < enableThreshold) {
+    if (ESP.getVcc() < system_config.undervoltageProtection.enableThreshold) {
       ESP.deepSleep(1800 * 1e6, WAKE_RF_DISABLED);
       return;
     }
@@ -77,6 +58,36 @@ void undervoltageProtect(uint32_t disableThreshold, uint32_t enableThreshold) {
 
   }
 
-  // The device is operating on the correct voltage range
+}
 
+/**
+ * Checks for undervoltage condition in the system
+ *
+ * If the voltage is lower than `disableThreshold` the board will boot into the
+ * lowest power mode possible and go right back to sleep ASAP. This will reduce
+ * the power consumption to the bare minimum, enabling protection of the battery
+ * and the rest of the system.
+ *
+ * If the voltage is higher than `enableThreshold`, the power will be enabled
+ * back again and normal operation will resume.
+ */
+void undervoltageProtect() {
+  // If the voltage enter into under-voltage shutdown
+  if (ESP.getVcc() < system_config.undervoltageProtection.disableThreshold) {
+    uint8_t bootflags = rtcMemVeriRead(RTCMEM_SLOT_BOOTFLAGS);
+
+    // Make sure we set the undervoltage protection boot flag set
+    if ((bootflags & BOOTFLAG_UNDERVOLTAGE_PROTECTION) == 0) {
+      bootflags |= BOOTFLAG_UNDERVOLTAGE_PROTECTION;
+      rtcMemVeriWrite(RTCMEM_SLOT_BOOTFLAGS, bootflags);
+    }
+
+    // Sleep for the maximum number of time that we can sleep. And when we
+    // come back to life make sure we don't cause any spike that could take the
+    // life of the battery down quicker.
+    ESP.deepSleep(1800 * 1e6, WAKE_RF_DISABLED);
+    return;
+  }
+
+  // The device is operating on the correct voltage range
 }

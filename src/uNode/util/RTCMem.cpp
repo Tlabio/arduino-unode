@@ -53,7 +53,8 @@ uint32_t csum_get(uint32_t & data) {
  * Sets the value to a triple-copy structure
  */
 void csum_set(uint32_t & data, uint32_t value) {
-  data = (value << 4) | crc4(CRC_INITIAL, data, 28);
+  uint8_t v1 = crc4(CRC_INITIAL, value, 28);
+  data = (value << 4) | v1;
 }
 
 /**
@@ -70,11 +71,16 @@ uint32_t csum_inc(uint32_t & data) {
  * Check the state of the RTC memory and reset it to zero if it's invalid
  */
 void rtcmem_setup() {
-  const char * bytes = ESP.getSketchMD5().c_str();
-  uint16_t sketch_crc16 = crc16((uint8_t*)bytes, 32);
+  uint8_t bytes[32];
+
+  // Read the MD5 checksum of the sketch and calculate a CRC16 from it
+  ESP.getSketchMD5().getBytes(bytes, 32);
+  uint16_t sketch_crc16 = crc16(bytes, 32);
   uint32_t saved_crc16 = rtcMemVeriRead(RTCMEM_SLOT_SKETCHID);
 
-  // If the sketch checksum is invalid
+  // If the sketch checksum is not the same with the checksum stored in the
+  // RTC memory, it means that we were flashed with a new firmware. Reset the
+  // memory state if this happens.
   if (saved_crc16 != sketch_crc16) {
     logDebug("Reseting RTC RAM due to invalid sketch checksum");
     rtcMemInvalidateAll();

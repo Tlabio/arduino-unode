@@ -43,8 +43,7 @@ uNodeConfig unode_config = {
         .devAddr = 0x00000000
       }
     }
-  },
-  .undervoltageProtection = true
+  }
 };
 
 /**
