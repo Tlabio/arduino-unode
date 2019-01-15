@@ -22,11 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
- 
+
 // 13/01/2019 Gijs Mos. Put UPIN_RFM_EN in high Z when LoRa not used to prevent power leak
 // through R2 when VBUS is high (for GPIO without LoRa). LoRa vendor library will make it
 // an output again and drive it appropriately when LoRa is in use.
- 
+
 #include <Arduino.h>
 #include <SPI.h>
 #include "Power.hpp"
@@ -88,15 +88,19 @@ void PowerClass::begin() {
  */
 void PowerClass::apply() {
   if (state.gpio || state.lora || state.ovrd) {
-    logDebug("Enabling VBus");
-    digitalWrite(UPIN_VBUS_EN, HIGH);
-    state.vbus = 1;
+    if (!state.vbus) {
+      logDebug("Enabling VBus");
+      digitalWrite(UPIN_VBUS_EN, HIGH);
+      state.vbus = 1;
+    }
   }
 
   else {
-    logDebug("Disabling VBus");
-    digitalWrite(UPIN_VBUS_EN, LOW);
-    state.vbus = 0;
+    if (state.vbus) {
+      logDebug("Disabling VBus");
+      digitalWrite(UPIN_VBUS_EN, LOW);
+      state.vbus = 0;
+    }
   }
 }
 
@@ -129,9 +133,10 @@ void PowerClass::setLoRaRadio(uint8_t enabled) {
     digitalWrite(UPIN_RFM_DIO1, LOW);
     pinMode(UPIN_RFM_DIO0, OUTPUT);
     digitalWrite(UPIN_RFM_DIO0, LOW);
-	// UPIN_RFM_EN to high Z. R2 will pull low when VBUS off. And high when VBUS on for GPIO,
-	// disabling the LoRa SPI and preventing leak through R2.
-	pinMode(UPIN_RFM_EN, INPUT);
+
+  	// UPIN_RFM_EN to high Z. R2 will pull low when VBUS off. And high when VBUS on for GPIO,
+  	// disabling the LoRa SPI and preventing leak through R2.
+  	pinMode(UPIN_RFM_EN, INPUT);
 
     // Disable module and VBus
     state.lora = 0;
