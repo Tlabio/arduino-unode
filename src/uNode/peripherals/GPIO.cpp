@@ -1,26 +1,26 @@
 /*******************************************************************************
-   Copyright (c) 2018 Ioannis Charalampidis
-
-   This is a private, preview release of the uNode hardware abstraction library.
-   The holder of a copy of this software and associated documentation files
-   (the "Software") is allowed to use the Software without any obligation to
-   create private and/or commercial projects. The Software can be obtained
-   through the official channels of the author, including but not limited to
-   Github and the official TLab.gr website. It is FORBIDDEN however to modify,
-   reverse-engineer, publish, distribute, sublicense, and/or sell copies of the
-   Software itself.
-
-   The license for this file might change in a future release. The author is not
-   obliged to announce this change through any channel but it should be included
-   in the release notes.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-   FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+ * Copyright (c) 2018 Ioannis Charalampidis
+ *
+ * This is a private, preview release of the uNode hardware abstraction library.
+ * The holder of a copy of this software and associated documentation files
+ * (the "Software") is allowed to use the Software without any obligation to
+ * create private and/or commercial projects. The Software can be obtained
+ * through the official channels of the author, including but not limited to
+ * Github and the official TLab.gr website. It is FORBIDDEN however to modify,
+ * reverse-engineer, publish, distribute, sublicense, and/or sell copies of the
+ * Software itself.
+ *
+ * The license for this file might change in a future release. The author is not
+ * obliged to announce this change through any channel but it should be included
+ * in the release notes.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  *******************************************************************************/
 
 // 13/01/2019. Gijs Mos. GPIOClass::pinMode handles bad modes now consistently and safely.
@@ -37,21 +37,21 @@
 
 
 /**
-   Initialize the singleton
-*/
+ * Initialize the singleton
+ */
 GPIOClass GPIO;
 
 
 /**
-   Constructor
-*/
+ * Constructor
+ */
 GPIOClass::GPIOClass() {
 }
 
 
 /**
-   Enable the GPIO expansion chip
-*/
+ * Enable the GPIO expansion chip
+ */
 void GPIOClass::begin() {
 
   SPI.begin();                // Setup the SPI.
@@ -75,8 +75,8 @@ void GPIOClass::begin() {
 
 
 /**
-   Disable the GPIO expansion chip
-*/
+ * Disable the GPIO expansion chip
+ */
 void GPIOClass::end() {
   // Nothing to do here.
   // Cannot end SPI because there are other chips on SPI.
@@ -85,8 +85,8 @@ void GPIOClass::end() {
 
 
 /**
-   Set the pin direction on the GPIO chip
-*/
+ * Set the pin direction on the GPIO chip
+ */
 void GPIOClass::pinMode( uint8_t pin, uint8_t mode ) {
   if ( pin > 7 ) return;            // Silently ignore non-existing pins.
 
@@ -116,8 +116,8 @@ void GPIOClass::pinMode( uint8_t pin, uint8_t mode ) {
 
 
 /**
-   Write a logical value on the pin
-*/
+ * Write a logical value on the pin
+ */
 void GPIOClass::digitalWrite( uint8_t pin, uint8_t value ) {
   if ( pin > 7 ) return;            // Silently ignore non-existing pins.
   if ( value ) {
@@ -131,16 +131,16 @@ void GPIOClass::digitalWrite( uint8_t pin, uint8_t value ) {
 }
 
 /**
-   Read a logical value from the pin
-*/
+ * Read a logical value from the pin
+ */
 uint8_t GPIOClass::digitalRead( uint8_t pin ) {
   if ( pin > 7 ) return LOW;          // Silently ignore non-existing pins, returning LOW.
   return ( readRegister( registerGPIO ) & pinMask( pin ) ? HIGH : LOW );
 }
 
 /**
-   Measure half pulse time (upto a maximum) on a pin.
-*/
+ * Measure half pulse time (upto a maximum) on a pin.
+ */
 int16_t GPIOClass::timeHalfPulse( uint8_t pin ) {
   uint32_t startTime = micros();
   uint8_t ourPinMask = pinMask( pin );
@@ -165,8 +165,8 @@ int16_t GPIOClass::timeHalfPulse( uint8_t pin ) {
 
 
 /**
-   Write "value" to MCP23S08 register "reg".
-*/
+ * Write "value" to MCP23S08 register "reg".
+ */
 void GPIOClass::writeRegister( uint8_t reg, uint8_t value ) {
   startSPI();
 
@@ -179,8 +179,8 @@ void GPIOClass::writeRegister( uint8_t reg, uint8_t value ) {
 
 
 /**
-   Read value of MCP23S08 register "reg".
-*/
+ * Read value of MCP23S08 register "reg".
+ */
 uint8_t GPIOClass::readRegister( uint8_t reg ) {
   uint8_t result;
 
@@ -196,8 +196,8 @@ uint8_t GPIOClass::readRegister( uint8_t reg ) {
 
 
 /**
-   Prepare SPI bus and select the MCP23S08,
-*/
+ * Prepare SPI bus and select the MCP23S08,
+ */
 void GPIOClass::startSPI() {
   SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
   ::digitalWrite( UPIN_GPIO, LOW );
@@ -205,8 +205,8 @@ void GPIOClass::startSPI() {
 
 
 /**
-   Deselect the MCP23S08, and free the SPI bus.
-*/
+ * Deselect the MCP23S08, and free the SPI bus.
+ */
 void GPIOClass::stopSPI() {
   ::digitalWrite( UPIN_GPIO, HIGH );
   SPI.endTransaction();

@@ -1,0 +1,8 @@
+This file contains a list of people who have made large contributions
+to the public version of uNode.
+
+Original uNode design and implementation:
+    Ioannis Charalampidis, TLab.gr Thessaloniki <ioannis.charalampidis@tlab.gr>
+
+Patch contributors:
+    * Gijs Mos, Sensemakers Amsterdam, www.sensemakersams.org
