@@ -30,6 +30,7 @@
 #include "peripherals/Wire.hpp"
 #include "util/Undervoltage.hpp"
 #include "util/Health.hpp"
+#include "util/RTCMem.hpp"
 
 extern "C" {
   #include "user_interface.h"
@@ -50,12 +51,15 @@ void uNodeClassOpen::setup() {
 
   // Initialize core structures first
   system_health_setup();
-  system_config_init();
+  system_config_setup();
+  rtcmem_setup();
 
   // Set configuration defaults if they are missing
-  if (system_config.lora.tx_timeout == 0) system_config.lora.tx_timeout = 10000;
-  if (system_config.lora.tx_retries == 0) system_config.lora.tx_retries = 10;
-  if (system_config.serialLogLevel == LOG_DEFAULT)  system_config.serialLogLevel = LOG_INFO;
+  if (CFG_DEFAULT == system_config.lora.tx_sf) system_config.lora.tx_sf = LORA_SF7;
+  if (CFG_DEFAULT == system_config.lora.tx_power) system_config.lora.tx_power = 14;
+  if (CFG_DEFAULT == system_config.lora.tx_timeout) system_config.lora.tx_timeout = 10000;
+  if (CFG_DEFAULT == system_config.lora.tx_retries) system_config.lora.tx_retries = 3;
+  if (CFG_DEFAULT == system_config.serialLogLevel)  system_config.serialLogLevel = LOG_INFO;
 
   // Initialize power management before trying to check battery status. This
   // also makes sure that we don't wake-up with RF on.
@@ -75,7 +79,7 @@ void uNodeClassOpen::setup() {
   logDebug("");  // Start at new line after ESP boot garbage
   logDebug("Booted firmware v" UNODE_FIRMWARE_VERSION);
   if (system_config.undervoltageProtection) {
-    logDebug3("VCC measured at ", ESP.getVcc(), "mV");
+    logDebug("VCC measured at %d mV", ESP.getVcc());
   }
 }
 
@@ -136,7 +140,7 @@ void uNodeClassOpen::sendLoRa(const char * data, size_t size, fnLoRaDataCallback
  */
 void uNodeClassOpen::deepSleep(const uint16_t seconds) {
   Power.off();
-  logDebug3("Sleeping for ", seconds, " sec");
+  logDebug("Sleeping for %d sec", seconds);
   Serial.flush();
   ESP.deepSleep(seconds * 1e6, WAKE_RF_DEFAULT);
 }

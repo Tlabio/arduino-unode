@@ -71,6 +71,20 @@ typedef enum {
 } LOG_LEVEL_t;
 
 /**
+ * Spreading factor for uNode
+ */
+typedef enum {
+  LORA_SF_DEFAULT=0,
+  LORA_SF12,
+  LORA_SF11,
+  LORA_SF10,
+  LORA_SF9,
+  LORA_SF8,
+  LORA_SF7,
+  LORA_SF7B
+} LORA_SPREADFACTOR_t;
+
+/**
  * A structure that carries the system health check within 2 bytes
  */
 struct system_health_t {

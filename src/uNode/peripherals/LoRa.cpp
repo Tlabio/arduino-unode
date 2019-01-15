@@ -161,7 +161,7 @@ void onEvent(ev_t ev) {
       if (LMIC.txrxFlags & TXRX_ACK)
         logDebug("Ack received");
       if (LMIC.dataLen) {
-        logDebug3("Received ", LMIC.dataLen, " bytes");
+        logDebug("Received %d bytes", LMIC.dataLen);
       }
 
       // If we are using OTAA mode, it means we are using the RTC memory
@@ -213,7 +213,7 @@ void onEvent(ev_t ev) {
       logDebug("Link Alive");
       break;
     default:
-      logDebug2("Unknown event:", (unsigned)ev);
+      logDebug("Unknown event: %u", (unsigned)ev);
       break;
   }
 }
@@ -329,11 +329,11 @@ size_t LoRaClass::sendRaw(const char * data, size_t len) {
   }
 
   if (LMIC.opmode & OP_TXRXPEND) {
-    logDebug3("Not sending ", len, " bytes: pending Rx/Tx")
+    logDebug("Not sending %d bytes: pending Rx/Tx", len);
     return 0;
   }
   else {
-    logDebug3("Sending ", len, " bytes")
+    logDebug("Sending %d bytes", len);
     LMIC_setTxData2(1, (uint8_t*)data, len, 0);
     return len;
   }
@@ -383,22 +383,28 @@ void LoRaClass::configureTTNChannels() {
   LMIC_setupChannel(5, 867500000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
   LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
   LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7),  BAND_CENTI);      // g-band
-  LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
+
+  // FSK is not possible with uNode v1.1
+  // LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK,  DR_FSK),  BAND_MILLI);      // g2-band
 
   // TTN defines an additional channel at 869.525Mhz using SF9 for class B
   // devices' ping slots. LMIC does not have an easy way to define set this
   // frequency and support for class B is spotty and untested, so this
   // frequency is not configured here.
 
-  // Disable link check validation
+  // Disable link check validation and ADR mode
   LMIC_setLinkCheckMode(0);
+  LMIC_setAdrMode(system_config.lora.adr);
 
   // TTN uses SF9 for its RX2 window.
   LMIC.dn2Dr = DR_SF9;
 
   // Set data rate and transmit power for uplink
-  LMIC_setAdrMode(0);
-  LMIC_setDrTxpow(DR_SF7, 14);
+  logDebug("Using tx_sf=%d, pow=%d", system_config.lora.tx_sf, system_config.lora.tx_power);
+  LMIC_setDrTxpow(
+    system_config.lora.tx_sf - 1,
+    system_config.lora.tx_power
+  );
 
 }
 

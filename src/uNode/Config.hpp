@@ -29,6 +29,11 @@
 #include "PublicDefinitions.hpp"
 
 /**
+ * A general-purpose constant that the user can use for setting a default config
+ */
+#define  CFG_DEFAULT    0
+
+/**
  * The LoRA Configuration parameters
  */
 struct uNodeLoRAConfig {
@@ -64,6 +69,16 @@ struct uNodeLoRAConfig {
   } activation;
 
   /**
+   * The spreading factor to use (default is LORA_SF7)
+   */
+  LORA_SPREADFACTOR_t tx_sf;
+
+  /**
+   * The transmission power to use (default is 14)
+   */
+  uint8_t             tx_power;
+
+  /**
    * When using managed transmission, this defines the number of seconds to wait
    * for a transmission acknowledgment before considering it timed out.
    */
@@ -74,6 +89,11 @@ struct uNodeLoRAConfig {
    * attempts to perform, before bailing out.
    */
   uint8_t             tx_retries;
+
+  /**
+   * Enable or disable Adaptive Data Rate (ADR) on the LoRa Chip
+   */
+  uint8_t             adr;
 
 };
 

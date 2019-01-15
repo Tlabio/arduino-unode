@@ -35,6 +35,6 @@ extern uNodeConfig system_config;
  * Initializes the system configuration using various possible sources to
  * complete this task.
  */
-void system_config_init();
+void system_config_setup();
 
 #endif
