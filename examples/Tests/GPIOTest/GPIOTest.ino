@@ -76,19 +76,30 @@ const uint8_t nPins = 4;
    Sketch setup
 */
 void setup() {
-  unsigned totalErrors = 0;
+  unsigned functionalErrors, stressErrors;
 
   uNode.setup();                    // Initialize the uNode library
   Serial.println("GPIO (MCP23S08) test. Pin D2 should be connected to D3, D4 to D5, D6 to D7, D8 to D9.");
-  totalErrors += test1(evenPins, oddPins);
-  totalErrors += test1(oddPins, evenPins);
-  if (totalErrors) {
-    Serial.print("****** ");
-    Serial.print(totalErrors);
-    Serial.println(" errors found.");
+
+  functionalErrors = functionalTest( evenPins, oddPins );
+  functionalErrors += functionalTest( oddPins, evenPins );
+  if (functionalErrors) {
+    Serial.print("** ");
+    Serial.print( functionalErrors );
+    Serial.println( " functional errors found." );
   } else
-    Serial.println("All tests passed.");
-  Serial.println("Reset uNode for another pass...");
+    Serial.println( "Functional tests passed." );
+
+  stressErrors = stressTest( evenPins, oddPins );
+  stressErrors += stressTest( oddPins, evenPins );
+  if (stressErrors) {
+    Serial.print("** ");
+    Serial.print( stressErrors );
+    Serial.println( " stress errors found." );
+  } else
+    Serial.println( "Stress tests passed." );
+
+  Serial.println("\nReset uNode for another pass...");
 }
 
 
@@ -99,7 +110,10 @@ void loop() {
   uNode.step();
 }
 
-unsigned test1(const uint8_t a[], const uint8_t b[] ) {
+/*
+   Functional test suite
+*/
+unsigned functionalTest( const uint8_t a[], const uint8_t b[] ) {
   // a[] pins to INPUT_PULLUP. This should pull themselfs and the connected b[] pin high.
   unsigned errors = 0;
 
@@ -112,11 +126,11 @@ unsigned test1(const uint8_t a[], const uint8_t b[] ) {
     uNode.digitalWrite( b[i], LOW );
     delay(1);  // After stabilisation both should be LOW
     if ( uNode.digitalRead( a[i] ) != LOW ) {
-      Serial.print(a[i]); Serial.println(" expected to be LOW (E001).");
+      Serial.print(a[i]); Serial.println( " expected to be LOW (E001)." );
       errors++;
     }
     if ( uNode.digitalRead( b[i] ) != LOW ) {
-      Serial.print(b[i]); Serial.println(" expected to be LOW (E002).");
+      Serial.print(b[i]); Serial.println( " expected to be LOW (E002)." );
       errors++;
     }
 
@@ -125,11 +139,13 @@ unsigned test1(const uint8_t a[], const uint8_t b[] ) {
     uNode.pinMode( b[i], INPUT_PULLUP );   // Now the pullup on b[] should pull both up
     delay(1);
     if ( uNode.digitalRead( a[i] ) != HIGH ) {
-      Serial.print(a[i]); Serial.println(" expected to be HIGH (E003).");
+      Serial.print( a[i] );
+      Serial.println( " expected to be HIGH (E003)." );
       errors++;
     }
     if ( uNode.digitalRead( b[i] ) != HIGH ) {
-      Serial.print(b[i]); Serial.println(" expected to be HIGH (E004).");
+      Serial.print( b[i] );
+      Serial.println( " expected to be HIGH (E004)." );
       errors++;
     }
 
@@ -140,11 +156,12 @@ unsigned test1(const uint8_t a[], const uint8_t b[] ) {
     uNode.digitalWrite( a[i], LOW );
     delay(1);
     if ( uNode.digitalRead( a[i] ) != LOW ) {
-      Serial.print(a[i]); Serial.println(" expected to be HIGH (E005).");
+      Serial.print( a[i] );
+      Serial.println( " expected to be HIGH (E005)." );
       errors++;
     }
     if ( uNode.digitalRead( b[i] ) != LOW ) {
-      Serial.print(b[i]); Serial.println(" expected to be HIGH (E006).");
+      Serial.print( b[i] ); Serial.println( " expected to be HIGH (E006)." );
       errors++;
     }
 
@@ -157,13 +174,67 @@ unsigned test1(const uint8_t a[], const uint8_t b[] ) {
     uNode.digitalWrite( a[i], HIGH );
     delay(1);
     if ( uNode.digitalRead( a[i] ) != HIGH ) {
-      Serial.print(a[i]); Serial.println(" expected to be HIGH (E007).");
+      Serial.print( a[i] );
+      Serial.println( " expected to be HIGH (E007)." );
       errors++;
     }
     if ( uNode.digitalRead( b[i] ) != HIGH ) {
-      Serial.print(b[i]); Serial.println(" expected to be HIGH (E008).");
+      Serial.print( b[i] );
+      Serial.println( " expected to be HIGH (E008)." );
       errors++;
     }
   }
+  return errors;
+}
+
+/*
+   Stress test suite
+*/
+unsigned stressTest( const uint8_t a[], const uint8_t b[] ) {
+
+  unsigned errors = 0;
+
+  for ( int i = 0; i < nPins; i++ ) {
+    // Start as a[] pins as INPUT and b[] as OUTPUT LOW.
+    uNode.pinMode( a[i], INPUT );
+    uNode.pinMode( b[i], OUTPUT );
+    uNode.digitalWrite( b[i], LOW );
+  }
+
+  uint8_t newState;
+
+  for ( int loops = 0; loops < 10000; loops++ ) {
+    if ( !(loops % 1000) ) yield();   // Keep WDT happy.
+    for ( int i = 0; i < nPins; i++ ) {
+      newState = ( uNode.digitalRead( b[i] ) == LOW ? HIGH : LOW );
+      uNode.digitalWrite( b[i], newState );
+      if ( uNode.digitalRead( b[i] ) != newState ) {
+        errors++;
+        if ( errors < 20 ) {
+          Serial.print(" Loop ");
+          Serial.print(loops);
+          Serial.print(", Output ");
+          Serial.print(b[i]);
+          Serial.print(", expected ");
+          Serial.print(newState);
+          Serial.println(" (E010)");
+        }
+        while (1) yield();
+      }
+      if ( uNode.digitalRead( a[i] ) != newState ) {
+        errors++;
+        if ( errors < 20 ) {
+          Serial.print(" Loop ");
+          Serial.print(loops);
+          Serial.print(", Input ");
+          Serial.print(a[i]);
+          Serial.print(", expected ");
+          Serial.print(newState);
+          Serial.println(" (E011)");
+        }
+      }
+    }
+  }
+
   return errors;
 }

@@ -13,7 +13,7 @@
 # Datatypes (KEYWORD5 or KEYWORD1)
 ########################################
 
-uNode                            KEYWORD1
+uNode                           KEYWORD1
 
 ########################################
 # Methods and Functions
@@ -23,6 +23,17 @@ uNode                            KEYWORD1
 sendLoRa                        KEYWORD2
 standby                         KEYWORD2
 deepSleep                       KEYWORD2
+setup                           KEYWORD2
+blink                           KEYWORD2
+enablePeripherals               KEYWORD2
+digitalRead                     KEYWORD2
+digitalWrite                    KEYWORD2
+pinMode                         KEYWORD2
+timeHalfPulse                   KEYWORD2
+sendTCP                         KEYWORD2
+sendUDP                         KEYWORD2
+connectWiFi                     KEYWORD2
+step                            KEYWORD2
 
 ########################################
 # Constants (LITERAL2)
