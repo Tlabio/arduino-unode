@@ -1,36 +1,28 @@
-/* DHT library
+/*******************************************************************************
+   DHT library modified and expanded for uNode
 
-MIT license
-written by Adafruit Industries
+   MIT license
+   Written by Adafruit Industries
+
+   Adapted and expanded by Gijs Mos, January 2019, Sensemakers Amsterdam.
 */
 
 #include "uNodeDHT.hpp"
 #include "../src/uNodeOpen.hpp"
 
-#define MIN_INTERVAL 2000
 
 DHT::DHT(uint8_t pin, uint8_t type, uint8_t count) {
   _pin = pin;
   _type = type;
-  #ifdef __AVR
-    _bit = digitalPinToBitMask(pin);
-    _port = digitalPinToPort(pin);
-  #endif
-  _maxcycles = microsecondsToClockCycles(10000);  // 1 millisecond timeout for
-                                                 // reading pulses from DHT sensor.
-  // Note that count is now ignored as the DHT reading algorithm adjusts itself
-  // basd on the speed of the processor.
+  _lastreadtime = 0;
 }
 
+
 void DHT::begin(void) {
-  // set up the pins!
-  uNode.pinMode(_pin, INPUT);
-  // Using this value makes sure that millis() - lastreadtime will be
-  // >= MIN_INTERVAL right away. Note that this assignment wraps around,
-  // but so will the subtraction.
-  _lastreadtime = -MIN_INTERVAL;
-  DEBUG_PRINT("Max clock cycles: "); DEBUG_PRINTLN(_maxcycles, DEC);
+  // set up the pin!
+  uNode.pinMode(_pin, INPUT_PULLUP);
 }
+
 
 //boolean S == Scale.  True == Fahrenheit; False == Celcius
 float DHT::readTemperature(bool S, bool force) {
@@ -38,56 +30,60 @@ float DHT::readTemperature(bool S, bool force) {
 
   if (read(force)) {
     switch (_type) {
-    case DHT11:
-      f = data[2];
-      if(S) {
-        f = convertCtoF(f);
-      }
-      break;
-    case DHT22:
-    case DHT21:
-      f = data[2] & 0x7F;
-      f *= 256;
-      f += data[3];
-      f *= 0.1;
-      if (data[2] & 0x80) {
-        f *= -1;
-      }
-      if(S) {
-        f = convertCtoF(f);
-      }
-      break;
+      case DHT11:
+        f = data[2];
+        if (S) {
+          f = convertCtoF(f);
+        }
+        break;
+      case DHT22:
+      case DHT21:
+        f = data[2] & 0x7F;
+        f *= 256;
+        f += data[3];
+        f *= 0.1;
+        if (data[2] & 0x80) {
+          f *= -1;
+        }
+        if (S) {
+          f = convertCtoF(f);
+        }
+        break;
     }
   }
   return f;
 }
+
 
 float DHT::convertCtoF(float c) {
   return c * 1.8 + 32;
 }
 
+
 float DHT::convertFtoC(float f) {
   return (f - 32) * 0.55555;
 }
+
 
 float DHT::readHumidity(bool force) {
   float f = NAN;
   if (read()) {
     switch (_type) {
-    case DHT11:
-      f = data[0];
-      break;
-    case DHT22:
-    case DHT21:
-      f = data[0];
-      f *= 256;
-      f += data[1];
-      f *= 0.1;
-      break;
+      case DHT11:
+        f = data[0];
+        break;
+      case DHT22:
+      case DHT21:
+        f = data[0];
+        f *= 256;
+        f += data[1];
+        f *= 0.1;
+        break;
     }
   }
   return f;
 }
+
 
 //boolean isFahrenheit: True == Fahrenheit; False == Celcius
 float DHT::computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit) {
@@ -102,24 +98,25 @@ float DHT::computeHeatIndex(float temperature, float percentHumidity, bool isFah
 
   if (hi > 79) {
     hi = -42.379 +
-             2.04901523 * temperature +
-            10.14333127 * percentHumidity +
-            -0.22475541 * temperature*percentHumidity +
-            -0.00683783 * pow(temperature, 2) +
-            -0.05481717 * pow(percentHumidity, 2) +
-             0.00122874 * pow(temperature, 2) * percentHumidity +
-             0.00085282 * temperature*pow(percentHumidity, 2) +
-            -0.00000199 * pow(temperature, 2) * pow(percentHumidity, 2);
+         2.04901523 * temperature +
+         10.14333127 * percentHumidity +
+         -0.22475541 * temperature * percentHumidity +
+         -0.00683783 * pow(temperature, 2) +
+         -0.05481717 * pow(percentHumidity, 2) +
+         0.00122874 * pow(temperature, 2) * percentHumidity +
+         0.00085282 * temperature * pow(percentHumidity, 2) +
+         -0.00000199 * pow(temperature, 2) * pow(percentHumidity, 2);
 
-    if((percentHumidity < 13) && (temperature >= 80.0) && (temperature <= 112.0))
+    if ((percentHumidity < 13) && (temperature >= 80.0) && (temperature <= 112.0))
       hi -= ((13.0 - percentHumidity) * 0.25) * sqrt((17.0 - abs(temperature - 95.0)) * 0.05882);
 
-    else if((percentHumidity > 85.0) && (temperature >= 80.0) && (temperature <= 87.0))
+    else if ((percentHumidity > 85.0) && (temperature >= 80.0) && (temperature <= 87.0))
       hi += ((percentHumidity - 85.0) * 0.1) * ((87.0 - temperature) * 0.2);
   }
 
   return isFahrenheit ? hi : convertFtoC(hi);
 }
+
 
 boolean DHT::read(bool force) {
   // Check if sensor was read less than two seconds ago and return early
@@ -138,13 +135,12 @@ boolean DHT::read(bool force) {
 
   // Go into high impedence state to let pull-up raise data line level and
   // start the reading process.
+  uNode.pinMode(_pin, OUTPUT);
   uNode.digitalWrite(_pin, HIGH);
   delay(250);
-
-  // First set data line low for 20 milliseconds.
-  uNode.pinMode(_pin, OUTPUT);
+  // First set data line low for 30 milliseconds.
   uNode.digitalWrite(_pin, LOW);
-  delay(20);
+  delay(30);
 
   uint32_t cycles[80];
   {
@@ -152,22 +148,20 @@ boolean DHT::read(bool force) {
     // and we don't want any interruptions.
     InterruptLock lock;
 
-    // End the start signal by setting data line high for 40 microseconds.
-    uNode.digitalWrite(_pin, HIGH);
-    delayMicroseconds(40);
-
+    // End the start signal by setting data line high with the PULLUP resistor.
     // Now start reading the data line to get the value from the DHT sensor.
-    uNode.pinMode(_pin, INPUT);
-    delayMicroseconds(10);  // Delay a bit to let sensor pull data line low.
+    uNode.pinMode(_pin, INPUT_PULLUP);
+    // Give sensor time to respond.
+    delayMicroseconds(40);
 
     // First expect a low signal for ~80 microseconds followed by a high signal
     // for ~80 microseconds again.
-    if (expectPulse(LOW) == 0) {
+    if (uNode.timeHalfPulse(_pin) == -1) {
       DEBUG_PRINTLN(F("Timeout waiting for start signal low pulse."));
       _lastresult = false;
       return _lastresult;
     }
-    if (expectPulse(HIGH) == 0) {
+    if (uNode.timeHalfPulse(_pin) == -1) {
       DEBUG_PRINTLN(F("Timeout waiting for start signal high pulse."));
       _lastresult = false;
       return _lastresult;
@@ -181,27 +175,27 @@ boolean DHT::read(bool force) {
     // if the bit is a 0 (high state cycle count < low state cycle count), or a
     // 1 (high state cycle count > low state cycle count). Note that for speed all
     // the pulses are read into a array and then examined in a later step.
-    for (int i=0; i<80; i+=2) {
-      cycles[i]   = expectPulse(LOW);
-      cycles[i+1] = expectPulse(HIGH);
+    for (int i = 0; i < 80; i += 2) {
+      cycles[i]   = uNode.timeHalfPulse(_pin);
+      cycles[i + 1] = uNode.timeHalfPulse(_pin);
     }
   } // Timing critical code is now complete.
 
   // Inspect pulses and determine which ones are 0 (high state cycle count < low
   // state cycle count), or 1 (high state cycle count > low state cycle count).
-  for (int i=0; i<40; ++i) {
-    uint32_t lowCycles  = cycles[2*i];
-    uint32_t highCycles = cycles[2*i+1];
-    if ((lowCycles == 0) || (highCycles == 0)) {
+  for (int i = 0; i < 40; ++i) {
+    uint32_t lowCycles  = cycles[2 * i];
+    uint32_t highCycles = cycles[2 * i + 1];
+    if ((lowCycles == -1) || (highCycles == -1)) {
       DEBUG_PRINTLN(F("Timeout waiting for pulse."));
       _lastresult = false;
       return _lastresult;
     }
-    data[i/8] <<= 1;
+    data[i / 8] <<= 1;
     // Now compare the low and high cycle times to see if the bit is a 0 or 1.
     if (highCycles > lowCycles) {
       // High cycles are greater than 50us low cycle count, must be a 1.
-      data[i/8] |= 1;
+      data[i / 8] |= 1;
     }
     // Else high cycles are less than (or equal to, a weird case) the 50us low
     // cycle count so this must be a zero.  Nothing needs to be changed in the
@@ -226,45 +220,4 @@ boolean DHT::read(bool force) {
     _lastresult = false;
     return _lastresult;
   }
-}
-
-// Expect the signal line to be at the specified level for a period of time and
-// return a count of loop cycles spent at that level (this cycle count can be
-// used to compare the relative time of two pulses).  If more than a millisecond
-// ellapses without the level changing then the call fails with a 0 response.
-// This is adapted from Arduino's pulseInLong function (which is only available
-// in the very latest IDE versions):
-//   https://github.com/arduino/Arduino/blob/master/hardware/arduino/avr/cores/arduino/wiring_pulse.c
-uint32_t DHT::expectPulse(bool level) {
-  uint32_t count = 1;
-  // On AVR platforms use direct GPIO port access as it's much faster and better
-  // for catching pulses that are 10's of microseconds in length:
-  #ifdef __AVR
-    uint8_t portState = level ? _bit : 0;
-    while ((*portInputRegister(_port) & _bit) == portState) {
-      if (count++ >= _maxcycles) {
-        return 0; // Exceeded timeout, fail.
-      }
-    }
-  // Otherwise fall back to using digitalRead (this seems to be necessary on ESP8266
-  // right now, perhaps bugs in direct port access functions?).
-  #else
-	// int c1 = 0; int c2 = 0;
-	// while( (c1 + c2) < 1000 ) {
-		// if(uNode.digitalRead(_pin)) c1++;
-		// else c2++;
-	// }
-	// Serial.println(c1);
-	// Serial.println(c2);
-	// return 0;	
-/* Serial.println(level);
-Serial.println(uNode.digitalRead(_pin)); */
-    while (uNode.digitalRead(_pin) == level) {
-      if (count++ >= _maxcycles) {
-        return 0; // Exceeded timeout, fail.
-      }
-    }
-  #endif
-
-  return count;
 }
