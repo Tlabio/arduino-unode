@@ -186,7 +186,7 @@ boolean DHT::read(bool force) {
   for (int i = 0; i < 40; ++i) {
     uint32_t lowCycles  = cycles[2 * i];
     uint32_t highCycles = cycles[2 * i + 1];
-    if ((lowCycles == -1) || (highCycles == -1)) {
+    if ((lowCycles == 0xFFFFFFFF) || (highCycles == 0xFFFFFFFF)) {
       DEBUG_PRINTLN(F("Timeout waiting for pulse."));
       _lastresult = false;
       return _lastresult;

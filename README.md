@@ -23,6 +23,10 @@ This repository is currently being renovated. More information will be available
 * **ADDED** : Under-voltage protection limits can be now configured in the `.undervoltageProtection` structure. 
 * **ADDED** : `.tx_sf`, `.tx_power` and `.adr` on LoRa configuration segment.
 
+#### 0.8.0
+
+* **ADDED** : Added the `uNode/libraries/DHT.hpp` library.
+
 ## Closed-Source Features
 
 The following features are closed-source and they are only available on the binary release of the library:
