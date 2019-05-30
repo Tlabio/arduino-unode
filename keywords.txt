@@ -13,75 +13,75 @@
 # Datatypes (KEYWORD5 or KEYWORD1)
 ########################################
 
-uNode                           KEYWORD1
+uNode	KEYWORD1
 
 ########################################
 # Methods and Functions
 #   (FUNCTION2 or KEYWORD2)
 ########################################
 
-sendLoRa                        KEYWORD2
-standby                         KEYWORD2
-deepSleep                       KEYWORD2
-setup                           KEYWORD2
-blink                           KEYWORD2
-enablePeripherals               KEYWORD2
-digitalRead                     KEYWORD2
-digitalWrite                    KEYWORD2
-pinMode                         KEYWORD2
-timeHalfPulse                   KEYWORD2
-sendTCP                         KEYWORD2
-sendUDP                         KEYWORD2
-connectWiFi                     KEYWORD2
-step                            KEYWORD2
+sendLoRa	KEYWORD2
+standby	KEYWORD2
+deepSleep	KEYWORD2
+setup	KEYWORD2
+blink	KEYWORD2
+enablePeripherals	KEYWORD2
+digitalRead	KEYWORD2
+digitalWrite	KEYWORD2
+pinMode	KEYWORD2
+timeHalfPulse	KEYWORD2
+sendTCP	KEYWORD2
+sendUDP	KEYWORD2
+connectWiFi	KEYWORD2
+step	KEYWORD2
 
 ########################################
 # Constants (LITERAL2)
 ########################################
 
 # uNode API
-UPIN_SCK                        LITERAL2
-UPIN_MISO                       LITERAL2
-UPIN_MOSI                       LITERAL2
-UPIN_RFM_DIO1                   LITERAL2
-UPIN_RFM_DIO0                   LITERAL2
-UPIN_RFM_EN                     LITERAL2
-UPIN_GPIO                       LITERAL2
-UPIN_VBUS_EN                    LITERAL2
-D0                              LITERAL2
-D1                              LITERAL2
-D2                              LITERAL2
-D3                              LITERAL2
-D4                              LITERAL2
-D5                              LITERAL2
-D6                              LITERAL2
-D7                              LITERAL2
-D8                              LITERAL2
-D9                              LITERAL2
-STANDBY_ALL                     LITERAL2
-STANDBY_GPIO                    LITERAL2
-STANDBY_WIFI                    LITERAL2
-STANDBY_LORA                    LITERAL2
+UPIN_SCK	LITERAL2
+UPIN_MISO	LITERAL2
+UPIN_MOSI	LITERAL2
+UPIN_RFM_DIO1	LITERAL2
+UPIN_RFM_DIO0	LITERAL2
+UPIN_RFM_EN	LITERAL2
+UPIN_GPIO	LITERAL2
+UPIN_VBUS_EN	LITERAL2
+D0	LITERAL2
+D1	LITERAL2
+D2	LITERAL2
+D3	LITERAL2
+D4	LITERAL2
+D5	LITERAL2
+D6	LITERAL2
+D7	LITERAL2
+D8	LITERAL2
+D9	LITERAL2
+STANDBY_ALL	LITERAL2
+STANDBY_GPIO	LITERAL2
+STANDBY_WIFI	LITERAL2
+STANDBY_LORA	LITERAL2
 
 # LoRA Constants
-LORA_DISABLED                   LITERAL2
-LORA_TTN_ABP                    LITERAL2
-LORA_TTN_OTAA                   LITERAL2
-LORA_SF_DEFAULT                 LITERAL2
-LORA_SF12                       LITERAL2
-LORA_SF11                       LITERAL2
-LORA_SF10                       LITERAL2
-LORA_SF9                        LITERAL2
-LORA_SF8                        LITERAL2
-LORA_SF7B                       LITERAL2
-LORA_SF7B                       LITERAL2
+LORA_DISABLED	LITERAL2
+LORA_TTN_ABP	LITERAL2
+LORA_TTN_OTAA	LITERAL2
+LORA_SF_DEFAULT	LITERAL2
+LORA_SF12	LITERAL2
+LORA_SF11	LITERAL2
+LORA_SF10	LITERAL2
+LORA_SF9	LITERAL2
+LORA_SF8	LITERAL2
+LORA_SF7B	LITERAL2
+LORA_SF7B	LITERAL2
 
 # Logging
-LOG_DEFAULT                     LITERAL2
-LOG_DISABLED                    LITERAL2
-LOG_INFO                        LITERAL2
-LOG_INFO_74880                  LITERAL2
-LOG_INFO_9600                   LITERAL2
-LOG_LEVEL_DEFAULT               LITERAL2
-LOG_LEVEL_DISABLED              LITERAL2
-LOG_LEVEL_INFO                  LITERAL2
+LOG_DEFAULT	LITERAL2
+LOG_DISABLED	LITERAL2
+LOG_INFO	LITERAL2
+LOG_INFO_74880	LITERAL2
+LOG_INFO_9600	LITERAL2
+LOG_LEVEL_DEFAULT	LITERAL2
+LOG_LEVEL_DISABLED	LITERAL2
+LOG_LEVEL_INFO	LITERAL2
